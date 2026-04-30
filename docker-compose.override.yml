@@ -1,0 +1,15 @@
+services:
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Email__Provider=Smtp
+      - Email__SmtpHost=mailhog
+      - Email__SmtpPort=1025
+    depends_on:
+      - mailhog

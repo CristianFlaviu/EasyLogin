@@ -1,34 +1,66 @@
+using EasyLogin.Application;
+using EasyLogin.Infrastructure;
+using EasyLogin.Infrastructure.Persistence;
+using EasyLoginAPI.Exceptions;
 using Scalar.AspNetCore;
+using Serilog;
 
-namespace EasyLoginAPI
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((ctx, lc) => lc
+    .ReadFrom.Configuration(ctx.Configuration)
+    .WriteTo.Console()
+    .WriteTo.File("logs/easylogin-.log", rollingInterval: RollingInterval.Day));
+
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
+var corsPolicy = "AllowFrontend";
+builder.Services.AddCors(options =>
 {
-    public class Program
+    options.AddPolicy(corsPolicy, policy =>
     {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+        var allowedOrigins = builder.Configuration["AllowedOrigins"]
+            ?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            ?? ["http://localhost:4200"];
 
-            // Add services to the container.
+        if (builder.Environment.IsDevelopment())
+            policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod();
+        else
+            policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod();
+    });
+});
 
-            builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
+builder.Services.AddControllers();
+builder.Services.AddOpenApi();
 
-            var app = builder.Build();
+var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi();
-                app.MapScalarApiReference();
-            }
-
-            app.UseAuthorization();
-
-
-            app.MapControllers();
-
-            app.Run();
-        }
-    }
+try
+{
+    await DataSeeder.SeedAsync(app.Services);
 }
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Database seeding failed. Application will not start.");
+    throw;
+}
+
+app.UseExceptionHandler();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
+
+app.UseHttpsRedirection();
+app.UseCors(corsPolicy);
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+
+app.Run();

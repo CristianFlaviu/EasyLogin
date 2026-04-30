@@ -1,3 +1,6 @@
 <Solution>
+  <Project Path="EasyLogin.Application/EasyLogin.Application.csproj" />
+  <Project Path="EasyLogin.Domain/EasyLogin.Domain.csproj" />
+  <Project Path="EasyLogin.Infrastructure/EasyLogin.Infrastructure.csproj" />
   <Project Path="EasyLoginAPI/EasyLoginAPI.csproj" />
 </Solution>
