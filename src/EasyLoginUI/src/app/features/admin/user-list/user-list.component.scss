@@ -1,0 +1,19 @@
+.page-container {
+  padding: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 32px;
+  opacity: 0.6;
+}
+
+.chip-active {
+  --mdc-chip-label-text-color: green;
+}
+
+.chip-inactive {
+  --mdc-chip-label-text-color: gray;
+}

@@ -1,0 +1,54 @@
+@use '@angular/material' as mat;
+
+$theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$azure-palette,
+  ),
+  typography: (
+    brand-family: 'Roboto',
+  ),
+));
+
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background: linear-gradient(160deg, #f0f6ff 0%, #e8eef7 100%);
+  min-height: 100vh;
+  @include mat.all-component-themes($theme);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: $spacing-md;
+
+  mat-card {
+    width: 100%;
+    max-width: 420px;
+  }
+}
+
+.full-width {
+  width: 100%;
+  display: block;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}

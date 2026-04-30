@@ -1,0 +1,60 @@
+<div class="page-container">
+
+  <div class="welcome-banner">
+    @if (auth.currentUser$ | async; as user) {
+      <div class="welcome-text">
+        <h1 class="welcome-heading">Welcome back, {{ user.firstName }}.</h1>
+        <p class="welcome-sub">Here's a snapshot of your application.</p>
+      </div>
+    }
+  </div>
+
+  <div class="stats-grid">
+    @for (stat of stats; track stat.label) {
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-icon-wrap" [style.background]="stat.color + '1a'">
+            <mat-icon [style.color]="stat.color">{{ stat.icon }}</mat-icon>
+          </div>
+          <div class="stat-value">{{ stat.value }}</div>
+          <div class="stat-label">{{ stat.label }}</div>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+
+  <div class="section-grid">
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>history</mat-icon>
+        <mat-card-title>Recent Activity</mat-card-title>
+        <mat-card-subtitle>Last 7 days</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="empty-state">
+          <mat-icon class="empty-icon">inbox</mat-icon>
+          <p>No recent activity to show.</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>quick_reference_all</mat-icon>
+        <mat-card-title>Quick Actions</mat-card-title>
+        <mat-card-subtitle>Common tasks</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="quick-actions">
+          <a mat-stroked-button routerLink="/profile">
+            <mat-icon>manage_accounts</mat-icon> Edit Profile
+          </a>
+          <a mat-stroked-button routerLink="/admin/users" *appHasRole="'Admin'">
+            <mat-icon>group</mat-icon> Manage Users
+          </a>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+</div>

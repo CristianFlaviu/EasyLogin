@@ -1,0 +1,31 @@
+<mat-toolbar class="navbar" color="primary">
+  <a mat-button routerLink="/dashboard" class="brand">
+    <mat-icon class="brand-icon">lock</mat-icon>
+    <span>EasyLogin</span>
+  </a>
+
+  <span class="nav-divider"></span>
+
+  <a mat-button routerLink="/dashboard" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">
+    Dashboard
+  </a>
+  <a mat-button routerLink="/profile" routerLinkActive="active-link">
+    Profile
+  </a>
+  <a mat-button routerLink="/admin/users" routerLinkActive="active-link" *appHasRole="'Admin'">
+    Users
+  </a>
+
+  <span class="spacer"></span>
+
+  @if (auth.currentUser$ | async; as user) {
+    <div class="user-info">
+      <div class="user-avatar">{{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}</div>
+      <span class="user-email">{{ user.email }}</span>
+    </div>
+  }
+
+  <button mat-icon-button matTooltip="Logout" (click)="auth.logout()">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>
