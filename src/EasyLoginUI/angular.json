@@ -45,25 +45,34 @@
               ],
               "outputHashing": "all"
             },
-            "development": {
+            "docker": {
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true,
               "fileReplacements": []
+            },
+            "kestrel": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.kestrel.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "proxyConfig": "proxy.conf.json"
-          },
           "configurations": {
             "production": { "buildTarget": "easylogin-ui:build:production" },
-            "development": { "buildTarget": "easylogin-ui:build:development" }
+            "docker": { "buildTarget": "easylogin-ui:build:docker", "proxyConfig": "proxy.conf.docker.json" },
+            "kestrel": { "buildTarget": "easylogin-ui:build:kestrel", "proxyConfig": "proxy.conf.kestrel.json" }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "docker"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n"
