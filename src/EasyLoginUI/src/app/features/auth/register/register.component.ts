@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -22,7 +21,7 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
   standalone: true,
   imports: [
     ReactiveFormsModule, RouterLink,
-    MatCardModule, MatFormFieldModule, MatInputModule,
+    MatFormFieldModule, MatInputModule,
     MatButtonModule, MatIconModule, MatProgressSpinnerModule,
   ],
   templateUrl: './register.component.html',
@@ -36,6 +35,11 @@ export class RegisterComponent {
   form = new FormGroup({
     firstName: new FormControl('', Validators.required),
     lastName: new FormControl('', Validators.required),
+    username: new FormControl('', [
+      Validators.required,
+      Validators.minLength(3),
+      Validators.pattern(/^[a-zA-Z0-9_]+$/),
+    ]),
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [
       Validators.required,
@@ -49,14 +53,34 @@ export class RegisterComponent {
   hidePassword = true;
   hideConfirm = true;
 
+  get strengthScore(): number {
+    const p = this.form.get('password')?.value ?? '';
+    if (!p) return 0;
+    let s = 0;
+    if (p.length >= 8) s++;
+    if (/[A-Z]/.test(p)) s++;
+    if (/[0-9]/.test(p)) s++;
+    if (/[^a-zA-Z0-9]/.test(p)) s++;
+    return s;
+  }
+
+  get strengthLabel(): string {
+    return ['', 'Weak', 'Fair', 'Good', 'Strong'][this.strengthScore];
+  }
+
+  get strengthColor(): string {
+    return ['', '#b71c1c', '#e65100', '#f9a825', '#2e7d32'][this.strengthScore];
+  }
+
   submit(): void {
     if (this.form.invalid) return;
     this.loading = true;
-    const { firstName, lastName, email, password, confirmPassword } = this.form.value;
+    const { firstName, lastName, username, email, password, confirmPassword } = this.form.value;
 
     this.auth.register({
       firstName: firstName!,
       lastName: lastName!,
+      username: username!,
       email: email!,
       password: password!,
       confirmPassword: confirmPassword!,

@@ -21,7 +21,7 @@ html, body {
 body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
-  background: linear-gradient(160deg, #f0f6ff 0%, #e8eef7 100%);
+  background: #fafafa;
   min-height: 100vh;
   @include mat.all-component-themes($theme);
 }

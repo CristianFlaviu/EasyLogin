@@ -1,10 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../../core/services/auth.service';
@@ -14,8 +14,8 @@ import { AuthService } from '../../../core/services/auth.service';
   standalone: true,
   imports: [
     ReactiveFormsModule, RouterLink,
-    MatCardModule, MatFormFieldModule, MatInputModule,
-    MatButtonModule, MatProgressSpinnerModule,
+    MatFormFieldModule, MatInputModule,
+    MatButtonModule, MatIconModule, MatProgressSpinnerModule,
   ],
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.scss',
@@ -30,14 +30,17 @@ export class ForgotPasswordComponent {
 
   loading = false;
   submitted = false;
+  submittedEmail = '';
 
   submit(): void {
     if (this.form.invalid) return;
     this.loading = true;
+    const email = this.form.value.email!;
 
-    this.auth.forgotPassword({ email: this.form.value.email! }).subscribe({
+    this.auth.forgotPassword({ email }).subscribe({
       next: () => {
         this.loading = false;
+        this.submittedEmail = email;
         this.submitted = true;
       },
       error: () => {
@@ -45,5 +48,10 @@ export class ForgotPasswordComponent {
         this.snackBar.open('Something went wrong. Please try again.', 'Close', { duration: 4000 });
       },
     });
+  }
+
+  resend(): void {
+    this.submitted = false;
+    this.form.reset();
   }
 }

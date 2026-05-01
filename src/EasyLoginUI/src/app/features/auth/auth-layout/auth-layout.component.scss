@@ -1,0 +1,178 @@
+:host {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.auth-shell {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+// ── Brand Panel ──────────────────────────────────────────────
+.brand-panel {
+  width: 42%;
+  flex-shrink: 0;
+  min-height: 100%;
+  background: linear-gradient(160deg, #0d47a1 0%, #1565c0 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px 52px;
+  position: relative;
+  overflow: hidden;
+}
+
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.c1 { top: -80px;   right: -80px;  width: 320px; height: 320px; border: 1px solid rgba(255,255,255,0.08); }
+.c2 { top: -40px;   right: -40px;  width: 200px; height: 200px; border: 1px solid rgba(255,255,255,0.10); }
+.c3 { bottom: -100px; left: -60px; width: 360px; height: 360px; border: 1px solid rgba(255,255,255,0.07); }
+.c4 { bottom: 60px;  right: -20px; width: 120px; height: 120px; background: rgba(255,255,255,0.04); }
+
+.brand-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.brand-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    color: white;
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+}
+
+.brand-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.5px;
+}
+
+.brand-headline {
+  font-size: 36px;
+  font-weight: 300;
+  color: white;
+  line-height: 1.25;
+  margin: 0 0 16px;
+  letter-spacing: -0.5px;
+
+  strong { font-weight: 700; }
+}
+
+.brand-tagline {
+  font-size: 14px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.7;
+  max-width: 260px;
+  margin: 0;
+}
+
+.brand-features {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.feature-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.feature-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: rgba(255,255,255,0.85);
+  }
+}
+
+.feature-label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
+  letter-spacing: 0.2px;
+}
+
+.brand-footer {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.3px;
+  margin: 0;
+}
+
+// ── Form Panel ──────────────────────────────────────────────
+.form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  overflow-y: auto;
+  padding: 40px 20px;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 420px;
+}
+
+// ── Breadcrumb ──────────────────────────────────────────────
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 36px;
+
+  a {
+    font-size: 12px;
+    font-weight: 400;
+    color: #bdbdbd;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+
+    &.active {
+      font-weight: 600;
+      color: #1565c0;
+    }
+
+    &:hover:not(.active) {
+      color: #9e9e9e;
+    }
+  }
+
+  .sep {
+    font-size: 12px;
+    color: #bdbdbd;
+    user-select: none;
+  }
+}

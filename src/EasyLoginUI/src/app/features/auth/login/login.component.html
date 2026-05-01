@@ -1,53 +1,48 @@
-<div class="auth-container">
-  <div class="brand-header">
-    <div class="brand-icon-wrapper">
-      <mat-icon>lock</mat-icon>
-    </div>
-    <h1 class="brand-name">EasyLogin</h1>
-    <p class="brand-tagline">Secure access management</p>
+<h2 class="screen-title">Sign in</h2>
+<p class="screen-subtitle">Enter your admin credentials to continue</p>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Email address</mat-label>
+    <input matInput formControlName="email" type="email" autocomplete="email">
+    @if (form.get('email')?.errors?.['required']) {
+      <mat-error>Email is required</mat-error>
+    } @else if (form.get('email')?.errors?.['email']) {
+      <mat-error>Enter a valid email address</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Password</mat-label>
+    <input matInput formControlName="password"
+           [type]="hidePassword ? 'password' : 'text'"
+           autocomplete="current-password">
+    <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword"
+            [attr.aria-label]="hidePassword ? 'Show password' : 'Hide password'">
+      <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+    </button>
+    @if (form.get('password')?.errors?.['required']) {
+      <mat-error>Password is required</mat-error>
+    } @else if (form.get('password')?.errors?.['minlength']) {
+      <mat-error>Password must be at least 6 characters</mat-error>
+    }
+  </mat-form-field>
+
+  <div class="forgot-row">
+    <a routerLink="/forgot-password" class="link-text">Forgot password?</a>
   </div>
 
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Sign in</mat-card-title>
-      <mat-card-subtitle>Welcome back — enter your credentials to continue</mat-card-subtitle>
-    </mat-card-header>
+  <button mat-flat-button color="primary" class="full-width submit-btn"
+          [disabled]="form.invalid || loading" type="submit">
+    @if (loading) {
+      <mat-spinner diameter="20" />
+    } @else {
+      Sign In
+    }
+  </button>
+</form>
 
-    <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="submit()">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email</mat-label>
-          <mat-icon matPrefix>mail_outline</mat-icon>
-          <input matInput formControlName="email" type="email" autocomplete="email">
-          <mat-error>Valid email is required</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Password</mat-label>
-          <mat-icon matPrefix>lock_outline</mat-icon>
-          <input matInput formControlName="password"
-                 [type]="hidePassword ? 'password' : 'text'"
-                 autocomplete="current-password">
-          <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
-            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-          </button>
-          <mat-error>Password is required</mat-error>
-        </mat-form-field>
-
-        <button mat-flat-button color="primary" class="full-width submit-btn"
-                [disabled]="form.invalid || loading" type="submit">
-          @if (loading) {
-            <mat-spinner diameter="20" />
-          } @else {
-            Sign in
-          }
-        </button>
-      </form>
-    </mat-card-content>
-
-    <mat-card-actions>
-      <a mat-button routerLink="/register">Create an account</a>
-      <a mat-button routerLink="/forgot-password">Forgot your password?</a>
-    </mat-card-actions>
-  </mat-card>
+<div class="screen-footer">
+  <span class="muted-text">Don't have an account?</span>
+  <a routerLink="/register" class="link-text">Create account</a>
 </div>

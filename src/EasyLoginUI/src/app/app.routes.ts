@@ -5,24 +5,44 @@ import { noAuthGuard } from './core/guards/no-auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+
+  // Auth screens share the split-layout shell
   {
     path: 'login',
     canActivate: [noAuthGuard],
-    loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent),
+    loadComponent: () => import('./features/auth/auth-layout/auth-layout.component').then(m => m.AuthLayoutComponent),
+    children: [{
+      path: '',
+      pathMatch: 'full',
+      loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent),
+    }],
   },
   {
     path: 'register',
     canActivate: [noAuthGuard],
-    loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent),
+    loadComponent: () => import('./features/auth/auth-layout/auth-layout.component').then(m => m.AuthLayoutComponent),
+    children: [{
+      path: '',
+      pathMatch: 'full',
+      loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent),
+    }],
   },
   {
     path: 'forgot-password',
-    loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
+    loadComponent: () => import('./features/auth/auth-layout/auth-layout.component').then(m => m.AuthLayoutComponent),
+    children: [{
+      path: '',
+      pathMatch: 'full',
+      loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
+    }],
   },
+
+  // Reset password is token-based — standalone page, no auth layout
   {
     path: 'reset-password',
     loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
   },
+
   {
     path: 'dashboard',
     canActivate: [authGuard],

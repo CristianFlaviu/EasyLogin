@@ -20,15 +20,20 @@ interface JwtPayload {
   [key: string]: unknown;
 }
 
+const LS_ACCESS_TOKEN = 'access_token';
+const LS_REFRESH_TOKEN = 'refresh_token';
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly api = inject(ApiService);
   private readonly router = inject(Router);
 
-  private accessToken: string | null = null;
-  private refreshTokenValue: string | null = null;
+  private accessToken: string | null = localStorage.getItem(LS_ACCESS_TOKEN);
+  private refreshTokenValue: string | null = localStorage.getItem(LS_REFRESH_TOKEN);
 
-  readonly currentUser$ = new BehaviorSubject<UserProfile | null>(null);
+  readonly currentUser$ = new BehaviorSubject<UserProfile | null>(
+    this.accessToken ? this.decodeUser(this.accessToken) : null
+  );
 
   isAuthenticated(): boolean {
     return this.accessToken !== null;
@@ -42,21 +47,19 @@ export class AuthService {
     return this.accessToken;
   }
 
+  private decodeUser(token: string): UserProfile {
+    const decoded = jwtDecode<JwtPayload>(token);
+    const raw = decoded[ROLE_CLAIM];
+    const roles = Array.isArray(raw) ? raw as string[] : raw ? [raw as string] : [];
+    return { id: decoded.sub, email: decoded.email, firstName: decoded.firstName, lastName: decoded.lastName, roles };
+  }
+
   private storeTokens(res: AuthResponse): void {
     this.accessToken = res.accessToken;
     this.refreshTokenValue = res.refreshToken;
-
-    const decoded = jwtDecode<JwtPayload>(res.accessToken);
-    const raw = decoded[ROLE_CLAIM];
-    const roles = Array.isArray(raw) ? raw as string[] : raw ? [raw as string] : [];
-
-    this.currentUser$.next({
-      id: decoded.sub,
-      email: decoded.email,
-      firstName: decoded.firstName,
-      lastName: decoded.lastName,
-      roles,
-    });
+    localStorage.setItem(LS_ACCESS_TOKEN, res.accessToken);
+    localStorage.setItem(LS_REFRESH_TOKEN, res.refreshToken);
+    this.currentUser$.next(this.decodeUser(res.accessToken));
   }
 
   login(req: LoginRequest): Observable<void> {
@@ -78,6 +81,8 @@ export class AuthService {
       .subscribe({ error: () => {} });
     this.accessToken = null;
     this.refreshTokenValue = null;
+    localStorage.removeItem(LS_ACCESS_TOKEN);
+    localStorage.removeItem(LS_REFRESH_TOKEN);
     this.currentUser$.next(null);
     this.router.navigate(['/login']);
   }

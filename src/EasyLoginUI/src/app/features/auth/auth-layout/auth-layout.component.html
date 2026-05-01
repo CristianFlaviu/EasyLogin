@@ -1,0 +1,56 @@
+<div class="auth-shell">
+
+  <!-- ── Brand Panel (left) ── -->
+  <aside class="brand-panel">
+    <div class="circle c1"></div>
+    <div class="circle c2"></div>
+    <div class="circle c3"></div>
+    <div class="circle c4"></div>
+
+    <div class="brand-top">
+      <div class="brand-logo-row">
+        <div class="brand-icon-box">
+          <mat-icon>lock</mat-icon>
+        </div>
+        <span class="brand-name">EasyLogin</span>
+      </div>
+      <div>
+        <h1 class="brand-headline">Admin<br><strong>Management</strong><br>Portal</h1>
+        <p class="brand-tagline">
+          Manage users, roles, and permissions from a single secure interface.
+        </p>
+      </div>
+    </div>
+
+    <div class="brand-features">
+      @for (f of features; track f.icon) {
+        <div class="feature-row">
+          <div class="feature-icon-box">
+            <mat-icon>{{ f.icon }}</mat-icon>
+          </div>
+          <span class="feature-label">{{ f.label }}</span>
+        </div>
+      }
+    </div>
+
+    <p class="brand-footer">© 2026 EasyLogin. All rights reserved.</p>
+  </aside>
+
+  <!-- ── Form Panel (right) ── -->
+  <main class="form-panel">
+    <div class="form-container">
+
+      <nav class="breadcrumb" aria-label="Auth navigation">
+        <a routerLink="/login" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Sign In</a>
+        <span class="sep" aria-hidden="true">/</span>
+        <a routerLink="/register" routerLinkActive="active">Register</a>
+        <span class="sep" aria-hidden="true">/</span>
+        <a routerLink="/forgot-password" routerLinkActive="active">Reset</a>
+      </nav>
+
+      <router-outlet />
+
+    </div>
+  </main>
+
+</div>
