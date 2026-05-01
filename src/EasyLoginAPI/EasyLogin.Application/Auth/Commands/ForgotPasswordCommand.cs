@@ -5,7 +5,10 @@ namespace EasyLogin.Application.Auth.Commands;
 
 public record ForgotPasswordCommand(string Email) : IRequest;
 
-public class ForgotPasswordCommandHandler(IUserRepository userRepository, IEmailService emailService)
+public class ForgotPasswordCommandHandler(
+    IUserRepository userRepository,
+    IEmailService emailService,
+    IEmailTemplateRenderer templateRenderer)
     : IRequestHandler<ForgotPasswordCommand>
 {
     public async Task Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
@@ -21,13 +24,10 @@ public class ForgotPasswordCommandHandler(IUserRepository userRepository, IEmail
         }
 
         var encodedToken = Uri.EscapeDataString(token);
-
-        var body = $"""
-            <p>You requested a password reset.</p>
-            <p>Use this token to reset your password:</p>
-            <pre>{encodedToken}</pre>
-            <p>This token expires in 24 hours.</p>
-            """;
+        var body = await templateRenderer.RenderAsync("ForgotPassword", new Dictionary<string, string>
+        {
+            ["token"] = encodedToken
+        });
 
         await emailService.SendAsync(request.Email, "Reset your password", body);
     }

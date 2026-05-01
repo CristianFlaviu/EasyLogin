@@ -75,6 +75,7 @@ public static class InfrastructureServiceExtensions
                     $"Unknown Email__Provider value '{emailProvider}'. Valid values: SendGrid, Smtp.");
         }
 
+        services.AddSingleton<IEmailTemplateRenderer, EmbeddedEmailTemplateRenderer>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IUserRepository, UserRepository>();

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command 'Get-ChildItem -Path '\\\\''c:\\\\Repos\\\\EasyLogin\\\\src\\\\EasyLoginAPI'\\\\'' -Recurse -File -Include '\\\\''*.cs'\\\\'' | Where-Object { -not $_.FullName.Contains\\('\\\\''\\\\bin\\\\'\\\\''\\) -and -not $_.FullName.Contains\\('\\\\''\\\\obj\\\\'\\\\''\\) } | Sort-Object FullName | ForEach-Object { $_.FullName }')",
+      "Bash(dotnet build *)"
+    ]
+  }
+}
