@@ -40,12 +40,19 @@
   <main class="form-panel">
     <div class="form-container">
 
-      <nav class="breadcrumb" aria-label="Auth navigation">
-        <a routerLink="/login" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Sign In</a>
-        <span class="sep" aria-hidden="true">/</span>
-        <a routerLink="/register" routerLinkActive="active">Register</a>
-        <span class="sep" aria-hidden="true">/</span>
-        <a routerLink="/forgot-password" routerLinkActive="active">Reset</a>
+      <nav class="auth-tabs" aria-label="Auth navigation">
+        <a routerLink="/login" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          <mat-icon>login</mat-icon>
+          <span>Sign In</span>
+        </a>
+        <a routerLink="/register" routerLinkActive="active">
+          <mat-icon>person_add</mat-icon>
+          <span>Register</span>
+        </a>
+        <a routerLink="/forgot-password" routerLinkActive="active">
+          <mat-icon>lock_reset</mat-icon>
+          <span>Reset</span>
+        </a>
       </nav>
 
       <router-outlet />

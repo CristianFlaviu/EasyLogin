@@ -1,6 +1,6 @@
 .page-container {
   padding: 24px;
-  max-width: 1100px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
@@ -20,17 +20,10 @@ mat-card-header {
   opacity: 0.6;
 }
 
-.chip-active {
-  --mdc-chip-label-text-color: green;
+.chip-system {
+  --mdc-chip-label-text-color: #6a1b9a;
 }
 
-.chip-inactive {
-  --mdc-chip-label-text-color: gray;
-}
-
-.you-chip {
-  font-size: 11px;
-  height: 20px;
-  margin-left: 6px;
+.chip-custom {
   --mdc-chip-label-text-color: #1565c0;
 }

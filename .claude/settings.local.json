@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ng version *)"
+      "Bash(ng version *)",
+      "Bash(dotnet build *)"
     ]
   }
 }

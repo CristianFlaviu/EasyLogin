@@ -35,11 +35,6 @@ export class RegisterComponent {
   form = new FormGroup({
     firstName: new FormControl('', Validators.required),
     lastName: new FormControl('', Validators.required),
-    username: new FormControl('', [
-      Validators.required,
-      Validators.minLength(3),
-      Validators.pattern(/^[a-zA-Z0-9_]+$/),
-    ]),
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [
       Validators.required,
@@ -75,12 +70,11 @@ export class RegisterComponent {
   submit(): void {
     if (this.form.invalid) return;
     this.loading = true;
-    const { firstName, lastName, username, email, password, confirmPassword } = this.form.value;
+    const { firstName, lastName, email, password, confirmPassword } = this.form.value;
 
     this.auth.register({
       firstName: firstName!,
       lastName: lastName!,
-      username: username!,
       email: email!,
       password: password!,
       confirmPassword: confirmPassword!,

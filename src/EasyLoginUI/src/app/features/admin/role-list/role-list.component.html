@@ -1,0 +1,65 @@
+<div class="page-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Role Management</mat-card-title>
+      <span class="header-spacer"></span>
+      <button mat-flat-button color="primary" (click)="openCreateDialog()">
+        <mat-icon>add</mat-icon> Create Role
+      </button>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (loading) {
+        <mat-progress-bar mode="indeterminate" />
+      }
+
+      <table mat-table [dataSource]="roles" class="full-width">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let r">{{ r.name }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef>Description</th>
+          <td mat-cell *matCellDef="let r">{{ r.description ?? '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef>Type</th>
+          <td mat-cell *matCellDef="let r">
+            @if (r.isSystemRole) {
+              <mat-chip class="chip-system">System</mat-chip>
+            } @else {
+              <mat-chip class="chip-custom">Custom</mat-chip>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef>Created</th>
+          <td mat-cell *matCellDef="let r">{{ r.createdAt | date:'mediumDate' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let r">
+            @if (!r.isSystemRole) {
+              <button mat-icon-button matTooltip="Delete" color="warn" (click)="deleteRole(r)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell empty-state" [attr.colspan]="displayedColumns.length">
+            No roles found.
+          </td>
+        </tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -17,4 +17,6 @@ public interface IUserRepository
     Task<string> GeneratePasswordResetTokenAsync(string email);
     Task ResetPasswordAsync(string email, string token, string newPassword);
     Task<PaginatedList<UserListItemResponse>> GetPagedUsersAsync(int pageNumber, int pageSize);
+    Task UpdateUserAsync(string userId, string firstName, string lastName, string email, bool isActive, IList<string> roles, string? newPassword);
+    Task DeleteUserAsync(string userId);
 }

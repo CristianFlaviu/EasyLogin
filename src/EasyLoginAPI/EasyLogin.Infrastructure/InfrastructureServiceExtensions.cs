@@ -78,6 +78,7 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddHttpContextAccessor();
 
         var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;
