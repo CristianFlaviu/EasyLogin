@@ -10,7 +10,16 @@ public class ForgotPasswordCommandHandler(IUserRepository userRepository, IEmail
 {
     public async Task Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
     {
-        var token = await userRepository.GeneratePasswordResetTokenAsync(request.Email);
+        string token;
+        try
+        {
+            token = await userRepository.GeneratePasswordResetTokenAsync(request.Email);
+        }
+        catch (KeyNotFoundException)
+        {
+            return;
+        }
+
         var encodedToken = Uri.EscapeDataString(token);
 
         var body = $"""
