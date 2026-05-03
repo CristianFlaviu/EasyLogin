@@ -12,7 +12,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AdminService } from '../../../core/services/admin.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { PaginatedList, UserListItem } from '../../../core/models/user.model';
+import { UserListItem, PaginatedList } from '../../../core/models/user.model';
+import { CompanyItem } from '../../../core/models/company.model';
 import { UserDialogComponent } from '../user-dialog/user-dialog.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
@@ -32,8 +33,9 @@ export class UserListComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  displayedColumns = ['name', 'email', 'roles', 'status', 'actions'];
+  displayedColumns = ['name', 'email', 'company', 'roles', 'status', 'actions'];
   users: UserListItem[] = [];
+  companies: CompanyItem[] = [];
   totalCount = 0;
   pageSize = 20;
   pageIndex = 0;
@@ -44,6 +46,7 @@ export class UserListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.admin.getCompanies().subscribe({ next: c => (this.companies = c) });
     this.loadUsers();
   }
 
@@ -67,24 +70,20 @@ export class UserListComponent implements OnInit {
 
   openCreateDialog(): void {
     const ref = this.dialog.open(UserDialogComponent, {
-      data: { user: null },
-      width: '500px',
+      data: { user: null, mode: 'superadmin', companies: this.companies },
+      width: '540px',
     });
-    ref.afterClosed().subscribe(result => {
-      if (result) this.loadUsers();
-    });
+    ref.afterClosed().subscribe(result => { if (result) this.loadUsers(); });
   }
 
   openEditDialog(user: UserListItem): void {
     this.admin.getUser(user.id).subscribe({
       next: detail => {
         const ref = this.dialog.open(UserDialogComponent, {
-          data: { user: detail },
-          width: '500px',
+          data: { user: detail, mode: 'superadmin', companies: this.companies },
+          width: '540px',
         });
-        ref.afterClosed().subscribe(result => {
-          if (result) this.loadUsers();
-        });
+        ref.afterClosed().subscribe(result => { if (result) this.loadUsers(); });
       },
       error: () => this.snackBar.open('Failed to load user details.', 'Close', { duration: 3000 }),
     });

@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(ng version *)",
-      "Bash(dotnet build *)"
+      "Bash(dotnet build *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Repos\\\\EasyLogin\" -Recurse -Directory)",
+      "Bash(Select-Object FullName)"
     ]
   }
 }

@@ -31,17 +31,35 @@
       }
     </mat-form-field>
 
-    <mat-form-field class="full-width">
-      <mat-label>Roles</mat-label>
-      <mat-select formControlName="roles" multiple>
-        @for (role of availableRoles; track role.id) {
-          <mat-option [value]="role.name">{{ role.name }}</mat-option>
-        }
-      </mat-select>
-      @if (form.get('roles')?.hasError('required') && form.get('roles')?.touched) {
-        <mat-error>At least one role required</mat-error>
-      }
-    </mat-form-field>
+    @if (isSuperAdmin) {
+      <mat-form-field class="full-width">
+        <mat-label>Company</mat-label>
+        <mat-select formControlName="companyId">
+          <mat-option [value]="null">— No company —</mat-option>
+          @for (c of companies; track c.id) {
+            <mat-option [value]="c.id">{{ c.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="full-width">
+        <mat-label>System Roles</mat-label>
+        <mat-select formControlName="systemRoles" multiple>
+          @for (role of systemRoles; track role.id) {
+            <mat-option [value]="role.name">{{ role.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    } @else {
+      <mat-form-field class="full-width">
+        <mat-label>Company Roles</mat-label>
+        <mat-select formControlName="companyRoleIds" multiple>
+          @for (role of companyRoles; track role.id) {
+            <mat-option [value]="role.id">{{ role.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
 
     @if (isEdit) {
       <mat-slide-toggle formControlName="isActive" color="primary">Active</mat-slide-toggle>
@@ -94,7 +112,7 @@
 </mat-dialog-actions>
 
 <style>
-  .dialog-form { display: flex; flex-direction: column; gap: 4px; min-width: 420px; padding-top: 8px; }
+  .dialog-form { display: flex; flex-direction: column; gap: 4px; min-width: 440px; padding-top: 8px; }
   .form-row { display: flex; gap: 12px; }
   .form-row mat-form-field { flex: 1; }
 </style>

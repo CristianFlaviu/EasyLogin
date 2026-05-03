@@ -10,6 +10,8 @@ public class ApplicationUser
     public DateTimeOffset? RefreshTokenExpiry { get; set; }
     public bool IsActive { get; set; } = true;
     public DateTimeOffset CreatedAt { get; set; }
+    public Guid? CompanyId { get; set; }
+    public string? CompanyName { get; set; }
 
     public ApplicationUser()
     {

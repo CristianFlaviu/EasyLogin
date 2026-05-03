@@ -1,0 +1,8 @@
+.page-container { padding: 24px; }
+.header-spacer { flex: 1; }
+.full-width { width: 100%; }
+.empty-state { text-align: center; padding: 32px; color: var(--mat-sys-on-surface-variant); }
+.chip-active { background-color: #e8f5e9 !important; color: #2e7d32 !important; }
+.chip-inactive { background-color: #fce4ec !important; color: #c62828 !important; }
+.you-chip { font-size: 10px !important; height: 18px !important; }
+.muted { color: var(--mat-sys-on-surface-variant); font-size: 14px; }

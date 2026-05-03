@@ -29,7 +29,7 @@ public class RefreshTokenCommandHandler(IUserRepository userRepository, ITokenSe
             throw new UnauthorizedAccessException();
         }
 
-        var (_, roles) = await userRepository.GetByIdWithRolesAsync(userId);
+        var (_, roles, _) = await userRepository.GetByIdWithRolesAsync(userId);
         var newAccessToken = tokenService.GenerateAccessToken(user, roles);
         var newRawRefreshToken = tokenService.GenerateRefreshToken();
         var expiry = DateTimeOffset.UtcNow.AddDays(7);

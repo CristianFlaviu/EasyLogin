@@ -12,11 +12,24 @@
   <a mat-button routerLink="/profile" routerLinkActive="active-link">
     Profile
   </a>
-  <a mat-button routerLink="/admin/users" routerLinkActive="active-link" *appHasRole="'Admin'">
+
+  <!-- SuperAdmin nav -->
+  <a mat-button routerLink="/superadmin/companies" routerLinkActive="active-link" *appHasRole="'SuperAdmin'">
+    Companies
+  </a>
+  <a mat-button routerLink="/superadmin/users" routerLinkActive="active-link" *appHasRole="'SuperAdmin'">
     Users
   </a>
-  <a mat-button routerLink="/admin/roles" routerLinkActive="active-link" *appHasRole="'Admin'">
-    Roles
+  <a mat-button routerLink="/superadmin/roles" routerLinkActive="active-link" *appHasRole="'SuperAdmin'">
+    System Roles
+  </a>
+
+  <!-- CompanyAdmin nav -->
+  <a mat-button routerLink="/company/users" routerLinkActive="active-link" *appHasRole="'CompanyAdmin'">
+    My Users
+  </a>
+  <a mat-button routerLink="/company/roles" routerLinkActive="active-link" *appHasRole="'CompanyAdmin'">
+    My Roles
   </a>
 
   <span class="spacer"></span>

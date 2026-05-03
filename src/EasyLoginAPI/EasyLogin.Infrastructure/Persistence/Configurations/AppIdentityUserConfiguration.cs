@@ -14,5 +14,12 @@ public class AppIdentityUserConfiguration : IEntityTypeConfiguration<AppIdentity
 
         builder.HasIndex(u => u.RefreshTokenHash)
             .HasFilter("[RefreshTokenHash] IS NOT NULL");
+
+        builder.Property(u => u.CompanyId);
+        builder.HasOne<EasyLogin.Domain.Entities.Company>()
+            .WithMany()
+            .HasForeignKey(u => u.CompanyId)
+            .OnDelete(DeleteBehavior.SetNull)
+            .IsRequired(false);
     }
 }

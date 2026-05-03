@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EasyLogin.Infrastructure.Persistence;
 
-public class UserRepository(UserManager<AppIdentityUser> userManager) : IUserRepository
+public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbContext db) : IUserRepository
 {
     public async Task<(ApplicationUser User, IList<string> Roles)> ValidateCredentialsAsync(string email, string password)
     {
@@ -24,10 +24,11 @@ public class UserRepository(UserManager<AppIdentityUser> userManager) : IUserRep
             throw new UnauthorizedAccessException();
 
         var roles = await userManager.GetRolesAsync(identityUser);
-        return (identityUser.Adapt<ApplicationUser>(), roles);
+        var user = await MapWithCompanyAsync(identityUser);
+        return (user, roles);
     }
 
-    public async Task<ApplicationUser> CreateUserAsync(string firstName, string lastName, string email, string password)
+    public async Task<ApplicationUser> CreateUserAsync(string firstName, string lastName, string email, string password, Guid? companyId = null)
     {
         var identityUser = new AppIdentityUser
         {
@@ -37,14 +38,15 @@ public class UserRepository(UserManager<AppIdentityUser> userManager) : IUserRep
             LastName = lastName,
             EmailConfirmed = true,
             IsActive = true,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            CompanyId = companyId
         };
 
         var result = await userManager.CreateAsync(identityUser, password);
         if (!result.Succeeded)
             throw new InvalidOperationException(string.Join(", ", result.Errors.Select(e => e.Description)));
 
-        return identityUser.Adapt<ApplicationUser>();
+        return await MapWithCompanyAsync(identityUser);
     }
 
     public async Task AssignRoleAsync(string userId, string roleName)
@@ -62,15 +64,23 @@ public class UserRepository(UserManager<AppIdentityUser> userManager) : IUserRep
     {
         var user = await userManager.FindByIdAsync(userId)
             ?? throw new KeyNotFoundException($"User {userId} not found.");
-        return user.Adapt<ApplicationUser>();
+        return await MapWithCompanyAsync(user);
     }
 
-    public async Task<(ApplicationUser User, IList<string> Roles)> GetByIdWithRolesAsync(string userId)
+    public async Task<(ApplicationUser User, IList<string> SystemRoles, IList<string> CompanyRoles)> GetByIdWithRolesAsync(
+        string userId, Guid? requiredCompanyId = null)
     {
-        var user = await userManager.FindByIdAsync(userId)
+        var identityUser = await userManager.FindByIdAsync(userId)
             ?? throw new KeyNotFoundException($"User {userId} not found.");
-        var roles = await userManager.GetRolesAsync(user);
-        return (user.Adapt<ApplicationUser>(), roles);
+
+        if (requiredCompanyId.HasValue && identityUser.CompanyId != requiredCompanyId)
+            throw new UnauthorizedAccessException();
+
+        var user = await MapWithCompanyAsync(identityUser);
+        var systemRoles = await userManager.GetRolesAsync(identityUser);
+        var companyRoles = await GetCompanyRoleNamesAsync(userId);
+
+        return (user, systemRoles, companyRoles);
     }
 
     public async Task StoreRefreshTokenAsync(string userId, string tokenHash, DateTimeOffset expiry)
@@ -111,31 +121,52 @@ public class UserRepository(UserManager<AppIdentityUser> userManager) : IUserRep
             throw new InvalidOperationException(string.Join(", ", result.Errors.Select(e => e.Description)));
     }
 
-    public async Task<PaginatedList<UserListItemResponse>> GetPagedUsersAsync(int pageNumber, int pageSize)
+    public async Task<PaginatedList<UserListItemResponse>> GetPagedUsersAsync(int pageNumber, int pageSize, Guid? companyId = null)
     {
-        var query = userManager.Users.OrderBy(u => u.LastName).ThenBy(u => u.FirstName);
-        var total = await query.CountAsync();
+        var query = from u in db.Users
+                    join c in db.Companies on u.CompanyId equals c.Id into gc
+                    from c in gc.DefaultIfEmpty()
+                    where companyId == null || u.CompanyId == companyId
+                    orderby u.LastName, u.FirstName
+                    select new { u, CompanyName = (string?)c.Name };
 
-        var users = await query
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
+        var total = await query.CountAsync();
+        var page = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        var userIds = page.Select(x => x.u.Id).ToList();
+        var companyRolesMap = await db.UserCompanyRoles
+            .Where(ucr => userIds.Contains(ucr.UserId))
+            .Join(db.CompanyRoles, ucr => ucr.CompanyRoleId, cr => cr.Id, (ucr, cr) => new { ucr.UserId, cr.Name })
             .ToListAsync();
+        var companyRolesByUser = companyRolesMap
+            .GroupBy(x => x.UserId)
+            .ToDictionary(g => g.Key, g => (IList<string>)g.Select(x => x.Name).ToList());
 
         var items = new List<UserListItemResponse>();
-        foreach (var u in users)
+        foreach (var x in page)
         {
-            var roles = await userManager.GetRolesAsync(u);
-            items.Add(new UserListItemResponse(u.Id, u.FirstName, u.LastName, u.Email ?? string.Empty,
-                u.IsActive, u.CreatedAt, roles));
+            var systemRoles = await userManager.GetRolesAsync(x.u);
+            companyRolesByUser.TryGetValue(x.u.Id, out var cRoles);
+            items.Add(new UserListItemResponse(
+                x.u.Id, x.u.FirstName, x.u.LastName, x.u.Email ?? string.Empty,
+                x.u.IsActive, x.u.CreatedAt,
+                x.u.CompanyId, x.CompanyName,
+                systemRoles, cRoles ?? []));
         }
 
         return new PaginatedList<UserListItemResponse>(items, total, pageNumber, pageSize);
     }
 
-    public async Task UpdateUserAsync(string userId, string firstName, string lastName, string email, bool isActive, IList<string> roles, string? newPassword)
+    public async Task UpdateUserAsync(
+        string userId, string firstName, string lastName, string email,
+        bool isActive, IList<string>? systemRoles, string? newPassword,
+        Guid? requiredCompanyId = null)
     {
         var user = await userManager.FindByIdAsync(userId)
             ?? throw new KeyNotFoundException($"User {userId} not found.");
+
+        if (requiredCompanyId.HasValue && user.CompanyId != requiredCompanyId)
+            throw new UnauthorizedAccessException();
 
         if (!string.Equals(user.Email, email, StringComparison.OrdinalIgnoreCase))
         {
@@ -157,10 +188,13 @@ public class UserRepository(UserManager<AppIdentityUser> userManager) : IUserRep
         if (!updateResult.Succeeded)
             throw new InvalidOperationException(string.Join(", ", updateResult.Errors.Select(e => e.Description)));
 
-        var currentRoles = await userManager.GetRolesAsync(user);
-        await userManager.RemoveFromRolesAsync(user, currentRoles);
-        if (roles.Count > 0)
-            await userManager.AddToRolesAsync(user, roles);
+        if (systemRoles is not null)
+        {
+            var currentRoles = await userManager.GetRolesAsync(user);
+            await userManager.RemoveFromRolesAsync(user, currentRoles);
+            if (systemRoles.Count > 0)
+                await userManager.AddToRolesAsync(user, systemRoles);
+        }
 
         if (!string.IsNullOrWhiteSpace(newPassword))
         {
@@ -171,13 +205,33 @@ public class UserRepository(UserManager<AppIdentityUser> userManager) : IUserRep
         }
     }
 
-    public async Task DeleteUserAsync(string userId)
+    public async Task DeleteUserAsync(string userId, Guid? requiredCompanyId = null)
     {
         var user = await userManager.FindByIdAsync(userId)
             ?? throw new KeyNotFoundException($"User {userId} not found.");
+
+        if (requiredCompanyId.HasValue && user.CompanyId != requiredCompanyId)
+            throw new UnauthorizedAccessException();
 
         var result = await userManager.DeleteAsync(user);
         if (!result.Succeeded)
             throw new InvalidOperationException(string.Join(", ", result.Errors.Select(e => e.Description)));
     }
+
+    private async Task<ApplicationUser> MapWithCompanyAsync(AppIdentityUser identityUser)
+    {
+        var user = identityUser.Adapt<ApplicationUser>();
+        if (identityUser.CompanyId.HasValue)
+        {
+            var company = await db.Companies.FindAsync(identityUser.CompanyId.Value);
+            user.CompanyName = company?.Name;
+        }
+        return user;
+    }
+
+    private async Task<IList<string>> GetCompanyRoleNamesAsync(string userId)
+        => await db.UserCompanyRoles
+            .Where(ucr => ucr.UserId == userId)
+            .Join(db.CompanyRoles, ucr => ucr.CompanyRoleId, cr => cr.Id, (_, cr) => cr.Name)
+            .ToListAsync();
 }

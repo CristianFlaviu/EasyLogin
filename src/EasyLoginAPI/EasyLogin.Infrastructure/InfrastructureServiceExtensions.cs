@@ -80,6 +80,8 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<ICompanyRepository, CompanyRepository>();
+        services.AddScoped<ICompanyRoleRepository, CompanyRoleRepository>();
         services.AddHttpContextAccessor();
 
         var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;

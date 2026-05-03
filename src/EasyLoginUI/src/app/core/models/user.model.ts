@@ -3,7 +3,10 @@ export interface UserProfile {
   email: string;
   firstName: string;
   lastName: string;
+  companyId: string | null;
+  companyName: string | null;
   roles: string[];
+  companyRoles: string[];
 }
 
 export interface UserListItem {
@@ -11,8 +14,12 @@ export interface UserListItem {
   email: string;
   firstName: string;
   lastName: string;
-  roles: string[];
   isActive: boolean;
+  createdAt: string;
+  companyId: string | null;
+  companyName: string | null;
+  roles: string[];
+  companyRoles: string[];
 }
 
 export interface UserDetail {
@@ -20,9 +27,12 @@ export interface UserDetail {
   email: string;
   firstName: string;
   lastName: string;
-  roles: string[];
   isActive: boolean;
   createdAt: string;
+  companyId: string | null;
+  companyName: string | null;
+  roles: string[];
+  companyRoles: string[];
 }
 
 export interface RoleItem {
@@ -47,7 +57,8 @@ export interface AdminCreateUserRequest {
   lastName: string;
   email: string;
   password: string;
-  roles: string[];
+  systemRoles: string[];
+  companyId: string | null;
 }
 
 export interface UpdateUserRequest {
@@ -55,7 +66,7 @@ export interface UpdateUserRequest {
   lastName: string;
   email: string;
   isActive: boolean;
-  roles: string[];
+  systemRoles: string[];
   newPassword: string | null;
 }
 

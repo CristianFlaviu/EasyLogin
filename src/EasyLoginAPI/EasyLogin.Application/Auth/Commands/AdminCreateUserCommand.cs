@@ -4,7 +4,9 @@ using MediatR;
 
 namespace EasyLogin.Application.Auth.Commands;
 
-public record AdminCreateUserCommand(string FirstName, string LastName, string Email, string Password, IList<string> Roles)
+public record AdminCreateUserCommand(
+    string FirstName, string LastName, string Email, string Password,
+    IList<string> SystemRoles, Guid? CompanyId)
     : IRequest<UserDetailResponse>;
 
 public class AdminCreateUserCommandHandler(
@@ -18,10 +20,10 @@ public class AdminCreateUserCommandHandler(
         if (await userRepository.EmailExistsAsync(request.Email))
             throw new InvalidOperationException($"Email '{request.Email}' is already registered.");
 
-        var user = await userRepository.CreateUserAsync(request.FirstName, request.LastName, request.Email, request.Password);
+        var user = await userRepository.CreateUserAsync(
+            request.FirstName, request.LastName, request.Email, request.Password, request.CompanyId);
 
-        var roles = request.Roles.Count > 0 ? request.Roles : new List<string> { "User" };
-        foreach (var role in roles)
+        foreach (var role in request.SystemRoles)
             await userRepository.AssignRoleAsync(user.Id, role);
 
         var body = await templateRenderer.RenderAsync("Welcome", new Dictionary<string, string>
@@ -31,6 +33,11 @@ public class AdminCreateUserCommandHandler(
         });
         await emailService.SendAsync(request.Email, "Welcome to EasyLogin", body);
 
-        return new UserDetailResponse(user.Id, user.FirstName, user.LastName, user.Email, user.IsActive, user.CreatedAt, roles);
+        var (detail, systemRoles, companyRoles) = await userRepository.GetByIdWithRolesAsync(user.Id);
+        return new UserDetailResponse(
+            detail.Id, detail.FirstName, detail.LastName, detail.Email,
+            detail.IsActive, detail.CreatedAt,
+            detail.CompanyId, detail.CompanyName,
+            systemRoles, companyRoles);
     }
 }

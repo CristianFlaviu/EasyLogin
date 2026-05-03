@@ -4,12 +4,11 @@ import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { ApiService } from './api.service';
 import {
-  AuthResponse, LoginRequest, RegisterRequest,
+  AuthResponse, LoginRequest,
   ForgotPasswordRequest, ResetPasswordRequest, RefreshTokenRequest
 } from '../models/auth.model';
 import { UserProfile } from '../models/user.model';
 
-// .NET ClaimTypes.Role maps to this URI in the JWT
 const ROLE_CLAIM = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
 
 interface JwtPayload {
@@ -17,6 +16,7 @@ interface JwtPayload {
   email: string;
   firstName: string;
   lastName: string;
+  company_id?: string;
   [key: string]: unknown;
 }
 
@@ -47,11 +47,24 @@ export class AuthService {
     return this.accessToken;
   }
 
+  getProfile(): Observable<UserProfile> {
+    return this.api.get<UserProfile>('/user/profile');
+  }
+
   private decodeUser(token: string): UserProfile {
     const decoded = jwtDecode<JwtPayload>(token);
     const raw = decoded[ROLE_CLAIM];
     const roles = Array.isArray(raw) ? raw as string[] : raw ? [raw as string] : [];
-    return { id: decoded.sub, email: decoded.email, firstName: decoded.firstName, lastName: decoded.lastName, roles };
+    return {
+      id: decoded.sub,
+      email: decoded.email,
+      firstName: decoded.firstName,
+      lastName: decoded.lastName,
+      companyId: decoded.company_id ?? null,
+      companyName: null,
+      roles,
+      companyRoles: [],
+    };
   }
 
   private storeTokens(res: AuthResponse): void {
@@ -64,13 +77,6 @@ export class AuthService {
 
   login(req: LoginRequest): Observable<void> {
     return this.api.post<AuthResponse>('/auth/login', req).pipe(
-      tap(res => this.storeTokens(res)),
-      map(() => void 0),
-    );
-  }
-
-  register(req: RegisterRequest): Observable<void> {
-    return this.api.post<AuthResponse>('/auth/register', req).pipe(
       tap(res => this.storeTokens(res)),
       map(() => void 0),
     );

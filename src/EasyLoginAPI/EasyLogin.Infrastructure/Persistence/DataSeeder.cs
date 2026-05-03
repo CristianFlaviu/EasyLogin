@@ -28,7 +28,7 @@ public static class DataSeeder
 
     private static async Task SeedRolesAsync(RoleManager<AppIdentityRole> roleManager, ILogger logger)
     {
-        string[] roles = ["Admin", "User"];
+        string[] roles = ["SuperAdmin", "CompanyAdmin", "User"];
         foreach (var roleName in roles)
         {
             if (!await roleManager.RoleExistsAsync(roleName))
@@ -79,7 +79,7 @@ public static class DataSeeder
             throw new InvalidOperationException(
                 $"Failed to create admin user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
 
-        await userManager.AddToRoleAsync(admin, "Admin");
+        await userManager.AddToRoleAsync(admin, "SuperAdmin");
         logger.LogInformation("Seeded admin user '{Email}'", adminEmail);
     }
 }

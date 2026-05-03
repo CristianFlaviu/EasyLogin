@@ -14,8 +14,11 @@ public class GetCurrentUserQueryHandler(IUserRepository userRepository, ICurrent
         var userId = currentUserService.UserId
             ?? throw new UnauthorizedAccessException();
 
-        var (user, roles) = await userRepository.GetByIdWithRolesAsync(userId);
+        var (user, systemRoles, companyRoles) = await userRepository.GetByIdWithRolesAsync(userId);
 
-        return new UserProfileResponse(user.Id, user.FirstName, user.LastName, user.Email, roles);
+        return new UserProfileResponse(
+            user.Id, user.FirstName, user.LastName, user.Email,
+            user.CompanyId, user.CompanyName,
+            systemRoles, companyRoles);
     }
 }

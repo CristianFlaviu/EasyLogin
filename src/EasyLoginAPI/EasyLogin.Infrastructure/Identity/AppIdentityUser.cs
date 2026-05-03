@@ -10,4 +10,5 @@ public class AppIdentityUser : IdentityUser
     public DateTimeOffset? RefreshTokenExpiry { get; set; }
     public bool IsActive { get; set; } = true;
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public Guid? CompanyId { get; set; }
 }

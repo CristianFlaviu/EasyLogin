@@ -33,6 +33,9 @@ public class TokenService(IConfiguration config) : ITokenService
             new("lastName", user.LastName),
         };
 
+        if (user.CompanyId.HasValue)
+            claims.Add(new Claim("company_id", user.CompanyId.Value.ToString()));
+
         claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
         var token = new JwtSecurityToken(

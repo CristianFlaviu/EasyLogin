@@ -10,10 +10,15 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AdminService } from '../../../core/services/admin.service';
+import { CompanyAdminService } from '../../../core/services/company-admin.service';
 import { RoleItem, UserDetail } from '../../../core/models/user.model';
+import { CompanyItem, CompanyRoleItem } from '../../../core/models/company.model';
 
 export interface UserDialogData {
   user: UserDetail | null;
+  mode: 'superadmin' | 'companyadmin';
+  companies?: CompanyItem[];
+  companyRoles?: CompanyRoleItem[];
 }
 
 @Component({
@@ -28,13 +33,19 @@ export interface UserDialogData {
   templateUrl: './user-dialog.component.html',
 })
 export class UserDialogComponent implements OnInit {
-  private readonly admin = inject(AdminService);
+  private readonly adminService = inject(AdminService);
+  private readonly companyAdminService = inject(CompanyAdminService);
   private readonly snackBar = inject(MatSnackBar);
   readonly dialogRef = inject(MatDialogRef<UserDialogComponent>);
   readonly data = inject<UserDialogData>(MAT_DIALOG_DATA);
 
   readonly isEdit = this.data.user !== null;
-  availableRoles: RoleItem[] = [];
+  readonly isSuperAdmin = this.data.mode === 'superadmin';
+
+  systemRoles: RoleItem[] = [];
+  companyRoles: CompanyRoleItem[] = this.data.companyRoles ?? [];
+  companies: CompanyItem[] = this.data.companies ?? [];
+
   loading = false;
   hidePassword = true;
 
@@ -43,22 +54,32 @@ export class UserDialogComponent implements OnInit {
     lastName: new FormControl('', Validators.required),
     email: new FormControl('', [Validators.required, Validators.email]),
     isActive: new FormControl(true),
-    roles: new FormControl<string[]>([], Validators.required),
+    companyId: new FormControl<string | null>(null),
+    systemRoles: new FormControl<string[]>([]),
+    companyRoleIds: new FormControl<string[]>([]),
     password: new FormControl(''),
     confirmPassword: new FormControl(''),
   });
 
   ngOnInit(): void {
-    this.admin.getRoles().subscribe({ next: roles => (this.availableRoles = roles) });
+    if (this.isSuperAdmin) {
+      this.adminService.getRoles().subscribe({ next: r => (this.systemRoles = r) });
+    }
 
     if (this.isEdit && this.data.user) {
       const u = this.data.user;
+      const selectedCompanyRoleIds = this.companyRoles
+        .filter(r => u.companyRoles.includes(r.name))
+        .map(r => r.id);
+
       this.form.patchValue({
         firstName: u.firstName,
         lastName: u.lastName,
         email: u.email,
         isActive: u.isActive,
-        roles: u.roles,
+        companyId: u.companyId,
+        systemRoles: u.roles,
+        companyRoleIds: selectedCompanyRoleIds,
       });
     } else {
       this.form.get('password')!.setValidators([
@@ -79,28 +100,49 @@ export class UserDialogComponent implements OnInit {
   }
 
   submit(): void {
-    if (this.form.invalid) return;
-    if (this.passwordMismatch) return;
+    if (this.form.invalid || this.passwordMismatch) return;
 
-    const { firstName, lastName, email, isActive, roles, password } = this.form.value;
+    const { firstName, lastName, email, isActive, companyId, systemRoles, companyRoleIds, password } = this.form.value;
     this.loading = true;
 
-    const obs = this.isEdit
-      ? this.admin.updateUser(this.data.user!.id, {
-          firstName: firstName!,
-          lastName: lastName!,
-          email: email!,
-          isActive: isActive!,
-          roles: roles!,
-          newPassword: password || null,
-        })
-      : this.admin.createUser({
-          firstName: firstName!,
-          lastName: lastName!,
-          email: email!,
-          password: password!,
-          roles: roles!,
-        });
+    let obs;
+
+    if (this.isSuperAdmin) {
+      obs = this.isEdit
+        ? this.adminService.updateUser(this.data.user!.id, {
+            firstName: firstName!,
+            lastName: lastName!,
+            email: email!,
+            isActive: isActive!,
+            systemRoles: systemRoles ?? [],
+            newPassword: password || null,
+          })
+        : this.adminService.createUser({
+            firstName: firstName!,
+            lastName: lastName!,
+            email: email!,
+            password: password!,
+            systemRoles: systemRoles ?? [],
+            companyId: companyId ?? null,
+          });
+    } else {
+      obs = this.isEdit
+        ? this.companyAdminService.updateUser(this.data.user!.id, {
+            firstName: firstName!,
+            lastName: lastName!,
+            email: email!,
+            isActive: isActive!,
+            companyRoleIds: companyRoleIds ?? [],
+            newPassword: password || null,
+          })
+        : this.companyAdminService.createUser({
+            firstName: firstName!,
+            lastName: lastName!,
+            email: email!,
+            password: password!,
+            companyRoleIds: companyRoleIds ?? [],
+          });
+    }
 
     obs.subscribe({
       next: result => {
