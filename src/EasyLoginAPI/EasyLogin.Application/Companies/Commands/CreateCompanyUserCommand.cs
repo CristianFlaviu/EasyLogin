@@ -37,7 +37,7 @@ public class CreateCompanyUserCommandHandler(
         var (detail, systemRoles, companyRoles) = await userRepository.GetByIdWithRolesAsync(user.Id, request.CallerCompanyId);
         return new UserDetailResponse(
             detail.Id, detail.FirstName, detail.LastName, detail.Email,
-            detail.IsActive, detail.CreatedAt,
+            detail.IsActive, detail.CreatedAt, detail.UpdatedAt,
             detail.CompanyId, detail.CompanyName,
             systemRoles, companyRoles);
     }

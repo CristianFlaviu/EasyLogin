@@ -3,6 +3,7 @@ export interface CompanyItem {
   name: string;
   isActive: boolean;
   createdAt: string;
+  updatedAt: string | null;
 }
 
 export interface CompanyRoleItem {
@@ -11,6 +12,7 @@ export interface CompanyRoleItem {
   description: string | null;
   companyId: string;
   createdAt: string;
+  updatedAt: string | null;
 }
 
 export interface CreateCompanyRequest {

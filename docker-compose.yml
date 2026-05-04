@@ -1,6 +1,8 @@
 services:
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: easylogin-db
+    restart: always
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=${SA_PASSWORD}
@@ -19,6 +21,8 @@ services:
     build:
       context: ./src/EasyLoginAPI
       dockerfile: EasyLoginAPI/Dockerfile
+    container_name: easylogin-api
+    restart: always
     depends_on:
       db:
         condition: service_healthy
@@ -28,6 +32,8 @@ services:
 
   frontend:
     build: ./src/EasyLoginUI
+    container_name: easylogin-frontend
+    restart: always
     ports:
       - "4200:80"
     depends_on:

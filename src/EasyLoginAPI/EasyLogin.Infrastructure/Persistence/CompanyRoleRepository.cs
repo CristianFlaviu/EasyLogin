@@ -22,7 +22,15 @@ public class CompanyRoleRepository(AppDbContext db) : ICompanyRoleRepository
         if (exists)
             throw new InvalidOperationException($"Role '{name}' already exists in this company.");
 
-        var role = new CompanyRole { Name = name, Description = description, CompanyId = companyId };
+        var role = new CompanyRole
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            Description = description,
+            CompanyId = companyId,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = null
+        };
         db.CompanyRoles.Add(role);
         await db.SaveChangesAsync();
         return Map(role);
@@ -77,9 +85,10 @@ public class CompanyRoleRepository(AppDbContext db) : ICompanyRoleRepository
         foreach (var roleId in companyRoleIds)
             db.UserCompanyRoles.Add(new UserCompanyRole { UserId = userId, CompanyRoleId = roleId });
 
+
         await db.SaveChangesAsync();
     }
 
     private static CompanyRoleResponse Map(CompanyRole cr)
-        => new(cr.Id, cr.Name, cr.Description, cr.CompanyId, cr.CreatedAt);
+        => new(cr.Id, cr.Name, cr.Description, cr.CompanyId, cr.CreatedAt, cr.UpdatedAt);
 }

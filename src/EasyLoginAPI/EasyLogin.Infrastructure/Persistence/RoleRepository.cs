@@ -11,7 +11,7 @@ public class RoleRepository(RoleManager<AppIdentityRole> roleManager) : IRoleRep
     public async Task<IList<RoleResponse>> GetAllRolesAsync()
     {
         var roles = await roleManager.Roles.OrderBy(r => r.Name).ToListAsync();
-        return roles.Select(r => new RoleResponse(r.Id, r.Name ?? string.Empty, r.Description, r.IsSystemRole, r.CreatedAt)).ToList();
+        return roles.Select(r => new RoleResponse(r.Id, r.Name ?? string.Empty, r.Description, r.IsSystemRole, r.CreatedAt, r.UpdatedAt)).ToList();
     }
 
     public async Task<RoleResponse> CreateRoleAsync(string name, string? description)
@@ -24,14 +24,15 @@ public class RoleRepository(RoleManager<AppIdentityRole> roleManager) : IRoleRep
             Name = name,
             Description = description,
             IsSystemRole = false,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = null
         };
 
         var result = await roleManager.CreateAsync(role);
         if (!result.Succeeded)
             throw new InvalidOperationException(string.Join(", ", result.Errors.Select(e => e.Description)));
 
-        return new RoleResponse(role.Id, role.Name!, role.Description, role.IsSystemRole, role.CreatedAt);
+        return new RoleResponse(role.Id, role.Name!, role.Description, role.IsSystemRole, role.CreatedAt, role.UpdatedAt);
     }
 
     public async Task DeleteRoleAsync(string roleId)

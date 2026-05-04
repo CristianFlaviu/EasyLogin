@@ -39,6 +39,7 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
             EmailConfirmed = true,
             IsActive = true,
             CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = null,
             CompanyId = companyId
         };
 
@@ -149,7 +150,7 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
             companyRolesByUser.TryGetValue(x.u.Id, out var cRoles);
             items.Add(new UserListItemResponse(
                 x.u.Id, x.u.FirstName, x.u.LastName, x.u.Email ?? string.Empty,
-                x.u.IsActive, x.u.CreatedAt,
+                x.u.IsActive, x.u.CreatedAt, x.u.UpdatedAt,
                 x.u.CompanyId, x.CompanyName,
                 systemRoles, cRoles ?? []));
         }
@@ -183,6 +184,7 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
         user.FirstName = firstName;
         user.LastName = lastName;
         user.IsActive = isActive;
+        user.UpdatedAt = DateTimeOffset.UtcNow;
 
         var updateResult = await userManager.UpdateAsync(user);
         if (!updateResult.Succeeded)

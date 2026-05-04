@@ -16,6 +16,7 @@ export interface UserListItem {
   lastName: string;
   isActive: boolean;
   createdAt: string;
+  updatedAt: string | null;
   companyId: string | null;
   companyName: string | null;
   roles: string[];
@@ -29,6 +30,7 @@ export interface UserDetail {
   lastName: string;
   isActive: boolean;
   createdAt: string;
+  updatedAt: string | null;
   companyId: string | null;
   companyName: string | null;
   roles: string[];
@@ -41,6 +43,7 @@ export interface RoleItem {
   description: string | null;
   isSystemRole: boolean;
   createdAt: string;
+  updatedAt: string | null;
 }
 
 export interface PaginatedList<T> {

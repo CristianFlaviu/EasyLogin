@@ -23,7 +23,7 @@ public class UpdateUserCommandHandler(IUserRepository userRepository)
         var (user, systemRoles, companyRoles) = await userRepository.GetByIdWithRolesAsync(request.UserId, request.CallerCompanyId);
         return new UserDetailResponse(
             user.Id, user.FirstName, user.LastName, user.Email,
-            user.IsActive, user.CreatedAt,
+            user.IsActive, user.CreatedAt, user.UpdatedAt,
             user.CompanyId, user.CompanyName,
             systemRoles, companyRoles);
     }

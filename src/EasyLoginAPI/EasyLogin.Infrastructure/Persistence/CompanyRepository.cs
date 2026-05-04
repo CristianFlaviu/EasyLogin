@@ -22,7 +22,14 @@ public class CompanyRepository(AppDbContext db) : ICompanyRepository
 
     public async Task<CompanyResponse> CreateAsync(string name)
     {
-        var company = new Company { Name = name };
+        var company = new Company
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            IsActive = true,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = null
+        };
         db.Companies.Add(company);
         await db.SaveChangesAsync();
         return Map(company);
@@ -34,6 +41,7 @@ public class CompanyRepository(AppDbContext db) : ICompanyRepository
             ?? throw new KeyNotFoundException($"Company {id} not found.");
         company.Name = name;
         company.IsActive = isActive;
+        company.UpdatedAt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync();
         return Map(company);
     }
@@ -50,5 +58,5 @@ public class CompanyRepository(AppDbContext db) : ICompanyRepository
         => await db.Companies.AnyAsync(c => c.Id == id);
 
     private static CompanyResponse Map(Company c)
-        => new(c.Id, c.Name, c.IsActive, c.CreatedAt);
+        => new(c.Id, c.Name, c.IsActive, c.CreatedAt, c.UpdatedAt);
 }

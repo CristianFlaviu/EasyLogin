@@ -37,7 +37,8 @@ public static class DataSeeder
                 {
                     Name = roleName,
                     IsSystemRole = true,
-                    CreatedAt = DateTimeOffset.UtcNow
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = null
                 });
 
                 if (!result.Succeeded)
@@ -71,7 +72,8 @@ public static class DataSeeder
             LastName = "User",
             EmailConfirmed = true,
             IsActive = true,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = null
         };
 
         var result = await userManager.CreateAsync(admin, adminPassword);
