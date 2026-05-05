@@ -29,5 +29,6 @@ export interface ResetPasswordRequest {
 }
 
 export interface RefreshTokenRequest {
+  accessToken: string;
   refreshToken: string;
 }

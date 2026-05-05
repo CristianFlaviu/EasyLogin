@@ -94,7 +94,11 @@ export class AuthService {
   }
 
   refreshToken(): Observable<AuthResponse> {
-    return this.api.post<AuthResponse>('/auth/refresh', { refreshToken: this.refreshTokenValue } as RefreshTokenRequest).pipe(
+    const body: RefreshTokenRequest = {
+      accessToken: this.accessToken ?? '',
+      refreshToken: this.refreshTokenValue ?? '',
+    };
+    return this.api.post<AuthResponse>('/auth/refresh', body).pipe(
       tap(res => this.storeTokens(res)),
     );
   }

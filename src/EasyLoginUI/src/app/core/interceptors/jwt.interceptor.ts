@@ -20,7 +20,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status !== 401) return throwError(() => error);
 
       // Never retry refresh or login endpoints — would cause infinite loops
-      if (req.url.includes('/auth/refresh') || req.url.includes('/auth/login')) {
+      if (req.url.includes('/auth/refresh') || req.url.includes('/auth/login') || req.url.includes('/auth/revoke')) {
         return throwError(() => error);
       }
 
