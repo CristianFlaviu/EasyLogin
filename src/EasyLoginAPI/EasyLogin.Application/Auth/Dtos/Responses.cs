@@ -20,3 +20,25 @@ public record UserDetailResponse(
     IList<string> Roles, IList<string> CompanyRoles);
 
 public record RoleResponse(string Id, string Name, string? Description, bool IsSystemRole, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt);
+
+public record AuditLogResponse(
+    Guid Id,
+    DateTimeOffset Timestamp,
+    string EventType,
+    bool Success,
+    string? ActorUserId,
+    string? ActorEmail,
+    string? TargetType,
+    string? TargetId,
+    string? TargetDisplay,
+    string? FailureReason,
+    string? IpAddress,
+    string? UserAgent,
+    string? BrowserName,
+    string? BrowserVersion,
+    string? OsName,
+    string? OsVersion,
+    string? DeviceFamily,
+    string? Jti,
+    string? CorrelationId,
+    string? MetadataJson);

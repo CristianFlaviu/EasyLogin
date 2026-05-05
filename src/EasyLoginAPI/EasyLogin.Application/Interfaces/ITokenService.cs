@@ -5,8 +5,10 @@ namespace EasyLogin.Application.Interfaces;
 
 public interface ITokenService
 {
-    string GenerateAccessToken(ApplicationUser user, IList<string> roles);
+    AccessTokenResult GenerateAccessToken(ApplicationUser user, IList<string> roles);
     string GenerateRefreshToken();
     ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
     int AccessTokenExpiryMinutes { get; }
 }
+
+public record AccessTokenResult(string Token, string Jti);

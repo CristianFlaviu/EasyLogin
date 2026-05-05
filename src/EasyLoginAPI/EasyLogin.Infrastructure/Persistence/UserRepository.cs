@@ -11,21 +11,31 @@ namespace EasyLogin.Infrastructure.Persistence;
 
 public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbContext db) : IUserRepository
 {
-    public async Task<(ApplicationUser User, IList<string> Roles)> ValidateCredentialsAsync(string email, string password)
+    public async Task<LoginAttemptResult> ValidateCredentialsAsync(string email, string password)
     {
-        var identityUser = await userManager.FindByEmailAsync(email)
-            ?? throw new UnauthorizedAccessException();
+        var identityUser = await userManager.FindByEmailAsync(email);
+        if (identityUser is null)
+            return LoginAttemptResult.Failed("UserNotFound");
 
         if (!identityUser.IsActive)
-            throw new UnauthorizedAccessException();
+            return LoginAttemptResult.Failed("UserInactive");
 
-        var valid = await userManager.CheckPasswordAsync(identityUser, password);
-        if (!valid)
-            throw new UnauthorizedAccessException();
+        if (await userManager.IsLockedOutAsync(identityUser))
+            return LoginAttemptResult.Failed("LockedOut");
+
+        if (!await userManager.CheckPasswordAsync(identityUser, password))
+        {
+            await userManager.AccessFailedAsync(identityUser);
+            return await userManager.IsLockedOutAsync(identityUser)
+                ? LoginAttemptResult.Failed("LockedOut")
+                : LoginAttemptResult.Failed("InvalidPassword");
+        }
+
+        await userManager.ResetAccessFailedCountAsync(identityUser);
 
         var roles = await userManager.GetRolesAsync(identityUser);
         var user = await MapWithCompanyAsync(identityUser);
-        return (user, roles);
+        return LoginAttemptResult.Ok(user, roles);
     }
 
     public async Task<ApplicationUser> CreateUserAsync(string firstName, string lastName, string email, string password, Guid? companyId = null)

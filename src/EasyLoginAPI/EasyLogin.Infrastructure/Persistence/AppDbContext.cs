@@ -11,6 +11,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<CompanyRole> CompanyRoles => Set<CompanyRole>();
     public DbSet<UserCompanyRole> UserCompanyRoles => Set<UserCompanyRole>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

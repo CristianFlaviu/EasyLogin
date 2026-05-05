@@ -26,6 +26,9 @@ EasyLoginAPI              → Controllers, GlobalExceptionHandler, Program.cs, S
 - **CORS**: dev allows `http://localhost:4200`; prod reads `AllowedOrigins` config (comma-separated)
 - **Serilog**: daily rolling log to `logs/easylogin-.log`
 - **Domain vs Identity split**: `ApplicationUser` (Domain POCO) ↔ `AppIdentityUser` (Identity entity) mapped via Mapster
+- **Lockout**: Identity built-in; 5 fail attempts → 15 min lock; checked + bumped in `UserRepository.ValidateCredentialsAsync` via `AccessFailedAsync`/`IsLockedOutAsync`/`ResetAccessFailedCountAsync`
+- **Code style**: use explicit types instead of `var` — declare the actual type on every local variable
+- **Audit**: append-only `AuditLogs` table covering auth events + User/Role mutations (no reads). Schema splits actor (who) from target (whom): `ActorUserId`/`ActorEmail`, `TargetType`/`TargetId`/`TargetDisplay`. `AuditLogger` (Infrastructure) auto-fills actor from JWT claims when handler doesn't pass it. UA parsed via `UAParser` NuGet. Direct injection in handlers (no MediatR pipeline) — synchronous write. Updates capture before/after diff into `MetadataJson` via `AuditDiffBuilder`
 
 ## API Routes
 
@@ -46,6 +49,7 @@ EasyLoginAPI              → Controllers, GlobalExceptionHandler, Program.cs, S
 | POST | `/api/admin/roles` | Admin | `CreateRoleCommand` |
 | DELETE | `/api/admin/roles/{id}` | Admin | `DeleteRoleCommand` |
 | GET | `/api/user/profile` | Authorized | `GetCurrentUserQuery` |
+| GET | `/api/superadmin/audit` | SuperAdmin | `GetAuditLogsQuery` (paginated, filterable) |
 
 ## Email System
 

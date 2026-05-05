@@ -30,6 +30,10 @@ public static class InfrastructureServiceExtensions
                 options.Password.RequiredLength = 8;
                 options.Password.RequireNonAlphanumeric = false;
                 options.User.RequireUniqueEmail = true;
+
+                options.Lockout.AllowedForNewUsers = true;
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
             })
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
@@ -82,6 +86,8 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<ICompanyRoleRepository, CompanyRoleRepository>();
+        services.AddScoped<IAuditLogger, AuditLogger>();
+        services.AddScoped<IAuditLogQueryRepository, AuditLogQueryRepository>();
         services.AddHttpContextAccessor();
 
         var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;

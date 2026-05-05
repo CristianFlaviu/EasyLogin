@@ -19,16 +19,17 @@ public class TokenService(IConfiguration config) : ITokenService
     public int AccessTokenExpiryMinutes =>
         int.TryParse(config["Jwt:AccessTokenExpiryMinutes"], out var minutes) ? minutes : 15;
 
-    public string GenerateAccessToken(ApplicationUser user, IList<string> roles)
+    public AccessTokenResult GenerateAccessToken(ApplicationUser user, IList<string> roles)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+        var jti = Guid.NewGuid().ToString();
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id),
             new(JwtRegisteredClaimNames.Email, user.Email),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Jti, jti),
             new("firstName", user.FirstName),
             new("lastName", user.LastName),
         };
@@ -45,7 +46,7 @@ public class TokenService(IConfiguration config) : ITokenService
             expires: DateTime.UtcNow.AddMinutes(AccessTokenExpiryMinutes),
             signingCredentials: creds);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return new AccessTokenResult(new JwtSecurityTokenHandler().WriteToken(token), jti);
     }
 
     public string GenerateRefreshToken()

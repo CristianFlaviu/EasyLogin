@@ -6,7 +6,7 @@ namespace EasyLogin.Application.Interfaces;
 
 public interface IUserRepository
 {
-    Task<(ApplicationUser User, IList<string> Roles)> ValidateCredentialsAsync(string email, string password);
+    Task<LoginAttemptResult> ValidateCredentialsAsync(string email, string password);
     Task<ApplicationUser> CreateUserAsync(string firstName, string lastName, string email, string password, Guid? companyId = null);
     Task AssignRoleAsync(string userId, string roleName);
     Task<bool> EmailExistsAsync(string email);

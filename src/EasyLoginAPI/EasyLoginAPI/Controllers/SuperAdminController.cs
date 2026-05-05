@@ -106,4 +106,20 @@ public class SuperAdminController(IMediator mediator) : ControllerBase
     [HttpGet("companies/{id:guid}/roles")]
     public async Task<IActionResult> GetCompanyRoles(Guid id)
         => Ok(await mediator.Send(new GetCompanyRolesQuery(id)));
+
+    // ── Audit ────────────────────────────────────────────────────────────────
+
+    [HttpGet("audit")]
+    public async Task<IActionResult> GetAuditLogs(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 50,
+        [FromQuery] string? actorUserId = null,
+        [FromQuery] string? actorEmail = null,
+        [FromQuery] string? targetType = null,
+        [FromQuery] string? targetId = null,
+        [FromQuery] string? eventType = null,
+        [FromQuery] DateTimeOffset? from = null,
+        [FromQuery] DateTimeOffset? to = null)
+        => Ok(await mediator.Send(new GetAuditLogsQuery(
+            pageNumber, pageSize, actorUserId, actorEmail, targetType, targetId, eventType, from, to)));
 }

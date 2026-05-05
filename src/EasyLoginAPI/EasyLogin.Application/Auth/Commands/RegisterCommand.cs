@@ -1,6 +1,7 @@
 using EasyLogin.Application.Auth.Dtos;
 using EasyLogin.Application.Common;
 using EasyLogin.Application.Interfaces;
+using EasyLogin.Domain.Entities;
 using MediatR;
 
 namespace EasyLogin.Application.Auth.Commands;
@@ -11,7 +12,8 @@ public class RegisterCommandHandler(
     IUserRepository userRepository,
     ITokenService tokenService,
     IEmailService emailService,
-    IEmailTemplateRenderer templateRenderer)
+    IEmailTemplateRenderer templateRenderer,
+    IAuditLogger auditLogger)
     : IRequestHandler<RegisterCommand, AuthResponse>
 {
     public async Task<AuthResponse> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -38,6 +40,15 @@ public class RegisterCommandHandler(
         });
         await emailService.SendAsync(request.Email, "Welcome to EasyLogin", body);
 
-        return new AuthResponse(accessToken, rawRefreshToken, tokenService.AccessTokenExpiryMinutes * 60);
+        await auditLogger.WriteAsync(new AuditEntry
+        {
+            EventType = AuditEventType.Register,
+            Success = true,
+            ActorUserId = user.Id,
+            ActorEmail = user.Email,
+            Jti = accessToken.Jti
+        }, cancellationToken);
+
+        return new AuthResponse(accessToken.Token, rawRefreshToken, tokenService.AccessTokenExpiryMinutes * 60);
     }
 }
