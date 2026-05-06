@@ -27,6 +27,7 @@ export const routes: Routes = [
   },
 
   { path: 'dashboard', canActivate: [authGuard], loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) },
+  { path: 'dashboard/:metric', canActivate: [authGuard], loadComponent: () => import('./features/dashboard/dashboard-detail/dashboard-detail.component').then(m => m.DashboardDetailComponent) },
   { path: 'profile', canActivate: [authGuard], loadComponent: () => import('./features/user/profile/profile.component').then(m => m.ProfileComponent) },
 
   // SuperAdmin routes

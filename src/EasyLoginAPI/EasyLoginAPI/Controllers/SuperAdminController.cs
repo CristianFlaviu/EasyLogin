@@ -15,6 +15,22 @@ namespace EasyLoginAPI.Controllers;
 [Authorize(Roles = "SuperAdmin")]
 public class SuperAdminController(IMediator mediator) : ControllerBase
 {
+    [HttpGet("overview")]
+    public async Task<IActionResult> GetOverview()
+        => Ok(await mediator.Send(new GetOverviewQuery()));
+
+    [HttpGet("overview/logins")]
+    public async Task<IActionResult> GetOverviewLogins(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20)
+        => Ok(await mediator.Send(new GetOverviewLoginsQuery(null, pageNumber, pageSize)));
+
+    [HttpGet("overview/sessions")]
+    public async Task<IActionResult> GetOverviewActiveSessions(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20)
+        => Ok(await mediator.Send(new GetOverviewActiveSessionsQuery(null, pageNumber, pageSize)));
+
     // ── Users ────────────────────────────────────────────────────────────────
 
     [HttpGet("users")]

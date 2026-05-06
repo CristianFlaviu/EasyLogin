@@ -1,7 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { PaginatedList, UserListItem, UserDetail } from '../models/user.model';
+import {
+  PaginatedList, UserListItem, UserDetail, OverviewResponse,
+  OverviewLoginItem, OverviewActiveSessionItem,
+} from '../models/user.model';
 import {
   TenantRoleItem, CreateTenantRoleRequest,
   CreateTenantUserRequest, UpdateTenantUserRequest,
@@ -11,6 +14,25 @@ import {
 @Injectable({ providedIn: 'root' })
 export class TenantAdminService {
   private readonly api = inject(ApiService);
+
+  getOverview(): Observable<OverviewResponse> {
+    return this.api.get<OverviewResponse>('/tenant/overview');
+  }
+
+  getOverviewLogins(pageNumber: number, pageSize: number): Observable<PaginatedList<OverviewLoginItem>> {
+    return this.api.get<PaginatedList<OverviewLoginItem>>(
+      `/tenant/overview/logins?pageNumber=${pageNumber}&pageSize=${pageSize}`
+    );
+  }
+
+  getOverviewActiveSessions(
+    pageNumber: number,
+    pageSize: number
+  ): Observable<PaginatedList<OverviewActiveSessionItem>> {
+    return this.api.get<PaginatedList<OverviewActiveSessionItem>>(
+      `/tenant/overview/sessions?pageNumber=${pageNumber}&pageSize=${pageSize}`
+    );
+  }
 
   // ── Users ────────────────────────────────────────────────────────────────
 

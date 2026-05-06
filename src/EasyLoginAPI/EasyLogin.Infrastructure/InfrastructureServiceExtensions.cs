@@ -87,6 +87,7 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<ITenantRoleRepository, TenantRoleRepository>();
+        services.AddScoped<IOverviewRepository, OverviewRepository>();
         services.AddScoped<IAuditLogger, AuditLogger>();
         services.AddScoped<IAuditLogQueryRepository, AuditLogQueryRepository>();
         services.AddHttpContextAccessor();

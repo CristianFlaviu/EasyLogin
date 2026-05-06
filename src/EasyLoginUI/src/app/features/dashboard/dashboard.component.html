@@ -1,39 +1,62 @@
 <div class="page-container">
 
-  <div class="welcome-banner">
+  <div class="welcome-banner" [class.loading]="loadingOverview">
     @if (auth.currentUser$ | async; as user) {
       <div class="welcome-text">
         <h1 class="welcome-heading">Welcome back, {{ user.firstName }}.</h1>
-        <p class="welcome-sub">Here's a snapshot of your application.</p>
+        <p class="welcome-sub">
+          {{ overviewScope }}
+          @if (updatedAt) {
+            <span>Updated {{ updatedAt | date: 'shortTime' }}</span>
+          }
+        </p>
       </div>
     }
   </div>
 
-  <div class="stats-grid">
-    @for (stat of stats; track stat.label) {
-      <mat-card class="stat-card">
-        <mat-card-content>
-          <div class="stat-icon-wrap" [style.background]="stat.color + '1a'">
-            <mat-icon [style.color]="stat.color">{{ stat.icon }}</mat-icon>
-          </div>
-          <div class="stat-value">{{ stat.value }}</div>
-          <div class="stat-label">{{ stat.label }}</div>
-        </mat-card-content>
-      </mat-card>
+  @if (showOverview) {
+    <div class="stats-grid">
+      @for (stat of stats; track stat.label) {
+        <a class="stat-card-link" [routerLink]="stat.route" [attr.aria-label]="stat.label">
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat-icon-wrap" [style.background]="stat.color + '1a'">
+                <mat-icon [style.color]="stat.color">{{ stat.icon }}</mat-icon>
+              </div>
+              <div class="stat-copy">
+                <div class="stat-value">{{ stat.value }}</div>
+                <div class="stat-label">{{ stat.label }}</div>
+              </div>
+              <mat-icon class="stat-arrow">chevron_right</mat-icon>
+            </mat-card-content>
+          </mat-card>
+        </a>
+      }
+    </div>
+
+    @if (overviewError) {
+      <p class="overview-error">{{ overviewError }}</p>
     }
-  </div>
+  }
 
   <div class="section-grid">
     <mat-card class="section-card">
       <mat-card-header>
-        <mat-icon mat-card-avatar>history</mat-icon>
-        <mat-card-title>Recent Activity</mat-card-title>
-        <mat-card-subtitle>Last 7 days</mat-card-subtitle>
+        <mat-icon mat-card-avatar>monitoring</mat-icon>
+        <mat-card-title>Overview Details</mat-card-title>
+        <mat-card-subtitle>Drill into operational counts</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <div class="empty-state">
-          <mat-icon class="empty-icon">inbox</mat-icon>
-          <p>No recent activity to show.</p>
+        <div class="detail-links">
+          <a mat-stroked-button routerLink="/dashboard/users">
+            <mat-icon>people</mat-icon> Users
+          </a>
+          <a mat-stroked-button routerLink="/dashboard/logins">
+            <mat-icon>login</mat-icon> Logins
+          </a>
+          <a mat-stroked-button routerLink="/dashboard/sessions">
+            <mat-icon>verified_user</mat-icon> Sessions
+          </a>
         </div>
       </mat-card-content>
     </mat-card>
@@ -49,8 +72,11 @@
           <a mat-stroked-button routerLink="/profile">
             <mat-icon>manage_accounts</mat-icon> Edit Profile
           </a>
-          <a mat-stroked-button routerLink="/admin/users" *appHasRole="'Admin'">
+          <a mat-stroked-button routerLink="/superadmin/users" *appHasRole="'SuperAdmin'">
             <mat-icon>group</mat-icon> Manage Users
+          </a>
+          <a mat-stroked-button routerLink="/tenant/users" *appHasRole="'TenantAdmin'">
+            <mat-icon>groups</mat-icon> My Users
           </a>
         </div>
       </mat-card-content>

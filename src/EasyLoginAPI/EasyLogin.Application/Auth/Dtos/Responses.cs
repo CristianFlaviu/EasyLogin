@@ -2,6 +2,27 @@ namespace EasyLogin.Application.Auth.Dtos;
 
 public record AuthResponse(string AccessToken, string RefreshToken, int ExpiresIn);
 
+public record OverviewResponse(int TotalUsers, int LoginsLast24Hours, int ActiveSessions);
+
+public record OverviewLoginResponse(
+    Guid Id,
+    DateTimeOffset Timestamp,
+    string? ActorUserId,
+    string? ActorEmail,
+    string? IpAddress,
+    string? BrowserName,
+    string? OsName,
+    string? DeviceFamily);
+
+public record OverviewActiveSessionResponse(
+    string UserId,
+    string FirstName,
+    string LastName,
+    string Email,
+    Guid? TenantId,
+    string? TenantName,
+    DateTimeOffset? RefreshTokenExpiry);
+
 public record UserProfileResponse(
     string Id, string FirstName, string LastName, string Email,
     Guid? TenantId, string? TenantName,

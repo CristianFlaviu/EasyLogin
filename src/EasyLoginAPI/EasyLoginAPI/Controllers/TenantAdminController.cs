@@ -20,6 +20,22 @@ public class TenantAdminController(IMediator mediator, ICurrentUserService curre
         currentUserService.TenantId
         ?? throw new UnauthorizedAccessException("TenantAdmin has no tenant assigned.");
 
+    [HttpGet("overview")]
+    public async Task<IActionResult> GetOverview()
+        => Ok(await mediator.Send(new GetOverviewQuery(CallerTenantId)));
+
+    [HttpGet("overview/logins")]
+    public async Task<IActionResult> GetOverviewLogins(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20)
+        => Ok(await mediator.Send(new GetOverviewLoginsQuery(CallerTenantId, pageNumber, pageSize)));
+
+    [HttpGet("overview/sessions")]
+    public async Task<IActionResult> GetOverviewActiveSessions(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20)
+        => Ok(await mediator.Send(new GetOverviewActiveSessionsQuery(CallerTenantId, pageNumber, pageSize)));
+
     // ── Users ────────────────────────────────────────────────────────────────
 
     [HttpGet("users")]

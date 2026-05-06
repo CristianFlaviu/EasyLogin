@@ -1,0 +1,136 @@
+<div class="page-container">
+  <div class="detail-header">
+    <a mat-icon-button routerLink="/dashboard" aria-label="Back to dashboard">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+    <div>
+      <h1>{{ title }}</h1>
+      <p>{{ subtitle }}</p>
+    </div>
+  </div>
+
+  <mat-card>
+    <mat-card-content>
+      @if (loading) {
+        <mat-progress-bar mode="indeterminate" />
+      }
+
+      @if (error) {
+        <p class="error-state">{{ error }}</p>
+      }
+
+      @if (metric === 'users') {
+        <table mat-table [dataSource]="users" class="full-width">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let user">{{ user.firstName }} {{ user.lastName }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>Email</th>
+            <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="tenant">
+            <th mat-header-cell *matHeaderCellDef>Tenant</th>
+            <td mat-cell *matCellDef="let user">{{ user.tenantName ?? '-' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="roles">
+            <th mat-header-cell *matHeaderCellDef>Roles</th>
+            <td mat-cell *matCellDef="let user">{{ roleText(user) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let user">
+              <mat-chip>{{ user.status }}</mat-chip>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell empty-state" [attr.colspan]="displayedColumns.length">No users found.</td>
+          </tr>
+        </table>
+      }
+
+      @if (metric === 'logins') {
+        <table mat-table [dataSource]="logins" class="full-width">
+          <ng-container matColumnDef="timestamp">
+            <th mat-header-cell *matHeaderCellDef>Time</th>
+            <td mat-cell *matCellDef="let login">{{ login.timestamp | date: 'medium' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>Email</th>
+            <td mat-cell *matCellDef="let login">{{ login.actorEmail ?? '-' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="ipAddress">
+            <th mat-header-cell *matHeaderCellDef>IP Address</th>
+            <td mat-cell *matCellDef="let login">{{ login.ipAddress ?? '-' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="browser">
+            <th mat-header-cell *matHeaderCellDef>Browser</th>
+            <td mat-cell *matCellDef="let login">{{ login.browserName ?? '-' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="device">
+            <th mat-header-cell *matHeaderCellDef>Device</th>
+            <td mat-cell *matCellDef="let login">{{ login.deviceFamily ?? login.osName ?? '-' }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell empty-state" [attr.colspan]="displayedColumns.length">No logins found.</td>
+          </tr>
+        </table>
+      }
+
+      @if (metric === 'sessions') {
+        <table mat-table [dataSource]="sessions" class="full-width">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let session">{{ sessionName(session) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>Email</th>
+            <td mat-cell *matCellDef="let session">{{ session.email }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="tenant">
+            <th mat-header-cell *matHeaderCellDef>Tenant</th>
+            <td mat-cell *matCellDef="let session">{{ session.tenantName ?? '-' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="expiresAt">
+            <th mat-header-cell *matHeaderCellDef>Refresh Expires</th>
+            <td mat-cell *matCellDef="let session">{{ session.refreshTokenExpiry | date: 'medium' }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell empty-state" [attr.colspan]="displayedColumns.length">No active sessions found.</td>
+          </tr>
+        </table>
+      }
+
+      <mat-paginator
+        [length]="totalCount"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[10, 20, 50]"
+        [pageIndex]="pageIndex"
+        (page)="onPage($event)">
+      </mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</div>

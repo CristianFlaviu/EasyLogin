@@ -2,7 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import {
-  PaginatedList, UserListItem, UserDetail, RoleItem,
+  PaginatedList, UserListItem, UserDetail, RoleItem, OverviewResponse,
+  OverviewLoginItem, OverviewActiveSessionItem,
   AdminCreateUserRequest, UpdateUserRequest, CreateRoleRequest, InviteUserRequest,
 } from '../models/user.model';
 import { TenantItem, TenantRoleItem, CreateTenantRequest, UpdateTenantRequest } from '../models/tenant.model';
@@ -10,6 +11,25 @@ import { TenantItem, TenantRoleItem, CreateTenantRequest, UpdateTenantRequest } 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private readonly api = inject(ApiService);
+
+  getOverview(): Observable<OverviewResponse> {
+    return this.api.get<OverviewResponse>('/superadmin/overview');
+  }
+
+  getOverviewLogins(pageNumber: number, pageSize: number): Observable<PaginatedList<OverviewLoginItem>> {
+    return this.api.get<PaginatedList<OverviewLoginItem>>(
+      `/superadmin/overview/logins?pageNumber=${pageNumber}&pageSize=${pageSize}`
+    );
+  }
+
+  getOverviewActiveSessions(
+    pageNumber: number,
+    pageSize: number
+  ): Observable<PaginatedList<OverviewActiveSessionItem>> {
+    return this.api.get<PaginatedList<OverviewActiveSessionItem>>(
+      `/superadmin/overview/sessions?pageNumber=${pageNumber}&pageSize=${pageSize}`
+    );
+  }
 
   // ── Users ────────────────────────────────────────────────────────────────
 

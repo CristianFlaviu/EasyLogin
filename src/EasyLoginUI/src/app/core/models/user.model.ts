@@ -9,6 +9,33 @@ export interface UserProfile {
   tenantRoles: string[];
 }
 
+export interface OverviewResponse {
+  totalUsers: number;
+  loginsLast24Hours: number;
+  activeSessions: number;
+}
+
+export interface OverviewLoginItem {
+  id: string;
+  timestamp: string;
+  actorUserId: string | null;
+  actorEmail: string | null;
+  ipAddress: string | null;
+  browserName: string | null;
+  osName: string | null;
+  deviceFamily: string | null;
+}
+
+export interface OverviewActiveSessionItem {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  tenantId: string | null;
+  tenantName: string | null;
+  refreshTokenExpiry: string | null;
+}
+
 export interface UserListItem {
   id: string;
   email: string;
