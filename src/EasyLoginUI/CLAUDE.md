@@ -71,6 +71,10 @@ src/app/
 - **nginx.conf**: proxies `/api/` → `http://api:8080/api/`, fallback to `index.html` for SPA routing
 - Served on port `4200:80` in docker-compose
 
+## Development Conventions
+
+- **Change summary**: after completing a task, add a brief summary of what changed if the scope was non-trivial (new components, route changes, service updates)
+
 ## Adding a New Feature
 
 1. Add service method in `core/services/api.service.ts` or a feature-specific service

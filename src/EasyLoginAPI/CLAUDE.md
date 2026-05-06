@@ -69,6 +69,11 @@ EasyLoginAPI              → Controllers, GlobalExceptionHandler, Program.cs, S
 6. Register in `ApplicationServiceExtensions` or `InfrastructureServiceExtensions`
 7. Add controller endpoint → dispatch via `_mediator.Send()`
 
+## Development Conventions
+
+- **Database**: no backward compatibility required — drop and recreate freely; migrations can be reset anytime; never worry about preserving existing data
+- **Change summary**: after completing a task, add a brief summary of what changed if the scope was non-trivial (new endpoints, schema changes, architectural shifts)
+
 ## Docker
 
 - `docker-compose.yml` at repo root; `.env` file holds secrets
