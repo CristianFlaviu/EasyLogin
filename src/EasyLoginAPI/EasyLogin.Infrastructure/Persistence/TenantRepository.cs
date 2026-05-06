@@ -57,6 +57,12 @@ public class TenantRepository(AppDbContext db) : ITenantRepository
     public async Task<bool> ExistsAsync(Guid id)
         => await db.Tenants.AnyAsync(c => c.Id == id);
 
+    public async Task<bool> IsActiveAsync(Guid id)
+        => await db.Tenants
+            .Where(c => c.Id == id)
+            .Select(c => c.IsActive)
+            .SingleOrDefaultAsync();
+
     private static TenantResponse Map(Tenant c)
         => new(c.Id, c.Name, c.IsActive, c.CreatedAt, c.UpdatedAt);
 }

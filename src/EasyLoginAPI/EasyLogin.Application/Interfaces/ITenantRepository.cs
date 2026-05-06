@@ -10,4 +10,5 @@ public interface ITenantRepository
     Task<TenantResponse> UpdateAsync(Guid id, string name, bool isActive);
     Task DeleteAsync(Guid id);
     Task<bool> ExistsAsync(Guid id);
+    Task<bool> IsActiveAsync(Guid id);
 }

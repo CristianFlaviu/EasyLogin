@@ -1,46 +1,36 @@
 <div class="page-container">
   <mat-card>
     <mat-card-header>
-      <mat-card-title>My Users</mat-card-title>
+      <mat-card-title>Invite Management</mat-card-title>
       <span class="header-spacer"></span>
-      <button mat-flat-button color="primary" (click)="openCreateDialog()">
-        <mat-icon>person_add</mat-icon> Create User
+      <button mat-flat-button color="primary" [disabled]="!invitesEnabled" (click)="openInviteDialog()">
+        <mat-icon>outgoing_mail</mat-icon> Invite Member
       </button>
     </mat-card-header>
 
     <mat-card-content>
+      @if (!invitesEnabled) {
+        <p class="warning">Your organization is suspended. Sending invites is disabled.</p>
+      }
+
       @if (loading) {
         <mat-progress-bar mode="indeterminate" />
       }
 
       <table mat-table [dataSource]="users" class="full-width">
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>Name</th>
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>Email</th>
           <td mat-cell *matCellDef="let u">
-            {{ u.firstName }} {{ u.lastName }}
+            {{ u.email }}
             @if (u.id === currentUserId) {
               <mat-chip class="you-chip">You</mat-chip>
             }
           </td>
         </ng-container>
 
-        <ng-container matColumnDef="email">
-          <th mat-header-cell *matHeaderCellDef>Email</th>
-          <td mat-cell *matCellDef="let u">{{ u.email }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="tenantRoles">
-          <th mat-header-cell *matHeaderCellDef>Roles</th>
-          <td mat-cell *matCellDef="let u">
-            <mat-chip-set>
-              @for (role of u.tenantRoles; track role) {
-                <mat-chip>{{ role }}</mat-chip>
-              }
-              @if (u.tenantRoles.length === 0) {
-                <span class="muted">—</span>
-              }
-            </mat-chip-set>
-          </td>
+        <ng-container matColumnDef="role">
+          <th mat-header-cell *matHeaderCellDef>Role</th>
+          <td mat-cell *matCellDef="let u">{{ roleText(u) }}</td>
         </ng-container>
 
         <ng-container matColumnDef="status">
@@ -52,15 +42,25 @@
           </td>
         </ng-container>
 
+        <ng-container matColumnDef="invitedAt">
+          <th mat-header-cell *matHeaderCellDef>Date Invited</th>
+          <td mat-cell *matCellDef="let u">{{ u.createdAt | date: 'medium' }}</td>
+        </ng-container>
+
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef></th>
           <td mat-cell *matCellDef="let u">
-            @if (u.id !== currentUserId) {
-              <button mat-icon-button matTooltip="Edit" (click)="openEditDialog(u)">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button mat-icon-button matTooltip="Delete" color="warn" (click)="deleteUser(u)">
-                <mat-icon>delete</mat-icon>
+            <button mat-icon-button matTooltip="Resend invite"
+                    [disabled]="!invitesEnabled || u.status === 'Suspended' || u.status === 'Expired'"
+                    (click)="resendInvite(u)">
+              <mat-icon>forward_to_inbox</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Revoke invite" (click)="revokeInvite(u)">
+              <mat-icon>block</mat-icon>
+            </button>
+            @if (u.id !== currentUserId && u.status !== 'Suspended') {
+              <button mat-icon-button matTooltip="Suspend user" color="warn" (click)="suspendUser(u)">
+                <mat-icon>person_off</mat-icon>
               </button>
             }
           </td>
@@ -70,7 +70,7 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
         <tr class="mat-row" *matNoDataRow>
-          <td class="mat-cell empty-state" [attr.colspan]="displayedColumns.length">No users found.</td>
+          <td class="mat-cell empty-state" [attr.colspan]="displayedColumns.length">No invitations found.</td>
         </tr>
       </table>
 

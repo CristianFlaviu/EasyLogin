@@ -99,6 +99,14 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
     public async Task<bool> EmailExistsAsync(string email)
         => await userManager.FindByEmailAsync(email) is not null;
 
+    public async Task<bool> IsInTenantAsync(string userId, Guid tenantId)
+    {
+        AppIdentityUser user = await userManager.FindByIdAsync(userId)
+            ?? throw new KeyNotFoundException($"User {userId} not found.");
+
+        return await IsInTenantInternalAsync(user, tenantId);
+    }
+
     public async Task<ApplicationUser> GetByIdAsync(string userId)
     {
         var user = await userManager.FindByIdAsync(userId)
@@ -112,12 +120,15 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
         var identityUser = await userManager.FindByIdAsync(userId)
             ?? throw new KeyNotFoundException($"User {userId} not found.");
 
-        if (requiredTenantId.HasValue && identityUser.TenantId != requiredTenantId)
+        if (requiredTenantId.HasValue
+            && !await IsInTenantInternalAsync(identityUser, requiredTenantId.Value))
+        {
             throw new UnauthorizedAccessException();
+        }
 
         var user = await MapWithTenantAsync(identityUser);
         var systemRoles = await userManager.GetRolesAsync(identityUser);
-        var tenantRoles = await GetTenantRoleNamesAsync(userId);
+        var tenantRoles = await GetTenantRoleNamesAsync(userId, requiredTenantId);
 
         return (user, systemRoles, tenantRoles);
     }
@@ -148,15 +159,7 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
             ?? throw new KeyNotFoundException($"User {userId} not found.");
 
         DateTimeOffset now = DateTimeOffset.UtcNow;
-        List<InviteToken> activeTokens = await db.InviteTokens
-            .Where(t => t.UserId == user.Id && !t.IsUsed)
-            .ToListAsync();
-
-        foreach (InviteToken token in activeTokens)
-        {
-            token.IsUsed = true;
-            token.UsedAt = now;
-        }
+        await RevokeInviteTokensInternalAsync(user.Id, now);
 
         db.InviteTokens.Add(new InviteToken
         {
@@ -169,6 +172,15 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
             UsedAt = null
         });
 
+        await db.SaveChangesAsync();
+    }
+
+    public async Task RevokeInviteTokensAsync(string userId)
+    {
+        AppIdentityUser user = await userManager.FindByIdAsync(userId)
+            ?? throw new KeyNotFoundException($"User {userId} not found.");
+
+        await RevokeInviteTokensInternalAsync(user.Id, DateTimeOffset.UtcNow);
         await db.SaveChangesAsync();
     }
 
@@ -196,7 +208,7 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
             throw new InviteTokenExpiredException("This invite link has expired.");
         }
 
-        if (user.Status != UserStatus.Pending)
+        if (user.Status != UserStatus.Pending && user.Status != UserStatus.Active)
             throw new InvalidOperationException("This invite is no longer pending.");
 
         return (user.Id, user.Email ?? string.Empty, user.FirstName, user.LastName);
@@ -226,7 +238,7 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
             throw new InviteTokenExpiredException("This invite link has expired.");
         }
 
-        if (user.Status != UserStatus.Pending)
+        if (user.Status != UserStatus.Pending && user.Status != UserStatus.Active)
             throw new InvalidOperationException("This invite is no longer pending.");
 
         string resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
@@ -234,11 +246,14 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
         if (!passwordResult.Succeeded)
             throw new InvalidOperationException(string.Join(", ", passwordResult.Errors.Select(e => e.Description)));
 
-        user.Status = UserStatus.Active;
-        user.UpdatedAt = DateTimeOffset.UtcNow;
-        IdentityResult updateResult = await userManager.UpdateAsync(user);
-        if (!updateResult.Succeeded)
-            throw new InvalidOperationException(string.Join(", ", updateResult.Errors.Select(e => e.Description)));
+        if (user.Status == UserStatus.Pending)
+        {
+            user.Status = UserStatus.Active;
+            user.UpdatedAt = DateTimeOffset.UtcNow;
+            IdentityResult updateResult = await userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+                throw new InvalidOperationException(string.Join(", ", updateResult.Errors.Select(e => e.Description)));
+        }
 
         invite.IsUsed = true;
         invite.UsedAt = DateTimeOffset.UtcNow;
@@ -270,7 +285,12 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
         var query = from u in db.Users
                     join c in db.Tenants on u.TenantId equals c.Id into gc
                     from c in gc.DefaultIfEmpty()
-                    where tenantId == null || u.TenantId == tenantId
+                    where tenantId == null
+                        || u.TenantId == tenantId
+                        || db.UserTenantRoles
+                            .Where(ucr => ucr.UserId == u.Id)
+                            .Join(db.TenantRoles, ucr => ucr.TenantRoleId, cr => cr.Id, (_, cr) => cr.TenantId)
+                            .Any(tid => tid == tenantId!.Value)
                     orderby u.LastName, u.FirstName
                     select new { u, TenantName = (string?)c.Name };
 
@@ -310,8 +330,11 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
         var user = await userManager.FindByIdAsync(userId)
             ?? throw new KeyNotFoundException($"User {userId} not found.");
 
-        if (requiredTenantId.HasValue && user.TenantId != requiredTenantId)
+        if (requiredTenantId.HasValue
+            && !await IsInTenantInternalAsync(user, requiredTenantId.Value))
+        {
             throw new UnauthorizedAccessException();
+        }
 
         if (!string.Equals(user.Email, email, StringComparison.OrdinalIgnoreCase))
         {
@@ -356,8 +379,11 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
         var user = await userManager.FindByIdAsync(userId)
             ?? throw new KeyNotFoundException($"User {userId} not found.");
 
-        if (requiredTenantId.HasValue && user.TenantId != requiredTenantId)
+        if (requiredTenantId.HasValue
+            && !await IsInTenantInternalAsync(user, requiredTenantId.Value))
+        {
             throw new UnauthorizedAccessException();
+        }
 
         var result = await userManager.DeleteAsync(user);
         if (!result.Succeeded)
@@ -375,9 +401,41 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
         return user;
     }
 
-    private async Task<IList<string>> GetTenantRoleNamesAsync(string userId)
-        => await db.UserTenantRoles
+    private async Task<IList<string>> GetTenantRoleNamesAsync(string userId, Guid? tenantId = null)
+    {
+        var query = db.UserTenantRoles
             .Where(ucr => ucr.UserId == userId)
-            .Join(db.TenantRoles, ucr => ucr.TenantRoleId, cr => cr.Id, (_, cr) => cr.Name)
+            .Join(db.TenantRoles, ucr => ucr.TenantRoleId, cr => cr.Id, (_, cr) => cr);
+
+        if (tenantId.HasValue)
+            query = query.Where(cr => cr.TenantId == tenantId.Value);
+
+        return await query
+            .Select(cr => cr.Name)
             .ToListAsync();
+    }
+
+    private async Task<bool> IsInTenantInternalAsync(AppIdentityUser user, Guid tenantId)
+    {
+        if (user.TenantId == tenantId)
+            return true;
+
+        return await db.UserTenantRoles
+            .Where(ucr => ucr.UserId == user.Id)
+            .Join(db.TenantRoles, ucr => ucr.TenantRoleId, cr => cr.Id, (_, cr) => cr.TenantId)
+            .AnyAsync(tid => tid == tenantId);
+    }
+
+    private async Task RevokeInviteTokensInternalAsync(string userId, DateTimeOffset now)
+    {
+        List<InviteToken> activeTokens = await db.InviteTokens
+            .Where(t => t.UserId == userId && !t.IsUsed)
+            .ToListAsync();
+
+        foreach (InviteToken token in activeTokens)
+        {
+            token.IsUsed = true;
+            token.UsedAt = now;
+        }
+    }
 }

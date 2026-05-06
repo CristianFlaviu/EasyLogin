@@ -37,6 +37,11 @@ export interface CreateTenantUserRequest {
   tenantRoleIds: string[];
 }
 
+export interface InviteTenantUserRequest {
+  email: string;
+  tenantRoleId: string;
+}
+
 export interface UpdateTenantUserRequest {
   firstName: string;
   lastName: string;

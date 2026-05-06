@@ -17,6 +17,7 @@ public record AdminCreateUserRequest(string FirstName, string LastName, string E
 public record InviteUserRequest(string FirstName, string LastName, string Email, List<string> SystemRoles, Guid? TenantId);
 
 public record CreateTenantUserRequest(string FirstName, string LastName, string Email, string Password, List<Guid> TenantRoleIds);
+public record InviteTenantUserRequest(string Email, Guid TenantRoleId);
 
 public record UpdateUserRequest(string FirstName, string LastName, string Email, bool IsActive, List<string> SystemRoles, string? NewPassword);
 

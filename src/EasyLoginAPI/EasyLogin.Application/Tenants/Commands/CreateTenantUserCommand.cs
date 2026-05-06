@@ -19,8 +19,12 @@ public class CreateTenantUserCommandHandler(
     IAuditLogger auditLogger)
     : IRequestHandler<CreateTenantUserCommand, UserDetailResponse>
 {
+    private static readonly string[] ForbiddenRoleNames = ["TenantAdmin", "SuperAdmin", "OrgAdmin"];
+
     public async Task<UserDetailResponse> Handle(CreateTenantUserCommand request, CancellationToken cancellationToken)
     {
+        await ValidateAssignableRolesAsync(request.TenantRoleIds, request.CallerTenantId);
+
         if (await userRepository.EmailExistsAsync(request.Email))
         {
             await auditLogger.WriteAsync(new AuditEntry
@@ -84,5 +88,23 @@ public class CreateTenantUserCommandHandler(
             detail.IsActive, detail.CreatedAt, detail.UpdatedAt,
             detail.TenantId, detail.TenantName,
             systemRoles, tenantRoles, detail.Status.ToString());
+    }
+
+    private async Task ValidateAssignableRolesAsync(IList<Guid> tenantRoleIds, Guid tenantId)
+    {
+        if (tenantRoleIds.Count == 0)
+            return;
+
+        IList<Tenants.Dtos.TenantRoleResponse> tenantRoles = await tenantRoleRepository.GetByTenantIdAsync(tenantId);
+        Dictionary<Guid, string> byId = tenantRoles.ToDictionary(role => role.Id, role => role.Name);
+
+        foreach (Guid roleId in tenantRoleIds)
+        {
+            if (!byId.TryGetValue(roleId, out string? roleName))
+                throw new InvalidOperationException("One or more roles do not belong to this tenant.");
+
+            if (ForbiddenRoleNames.Contains(roleName, StringComparer.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Org Admin cannot assign roles equal to or above their own role.");
+        }
     }
 }

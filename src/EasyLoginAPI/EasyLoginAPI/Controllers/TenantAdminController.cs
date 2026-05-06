@@ -39,6 +39,35 @@ public class TenantAdminController(IMediator mediator, ICurrentUserService curre
         return StatusCode(201, result);
     }
 
+    [HttpPost("users/invite")]
+    public async Task<IActionResult> InviteUser([FromBody] InviteTenantUserRequest request)
+    {
+        var result = await mediator.Send(new InviteTenantUserCommand(
+            request.Email, request.TenantRoleId, CallerTenantId));
+        return StatusCode(201, result);
+    }
+
+    [HttpPost("users/{id}/resend-invite")]
+    public async Task<IActionResult> ResendInvite(string id)
+    {
+        await mediator.Send(new ResendTenantInviteCommand(id, CallerTenantId));
+        return Ok(new { message = "Invite resent." });
+    }
+
+    [HttpPost("users/{id}/revoke-invite")]
+    public async Task<IActionResult> RevokeInvite(string id)
+    {
+        await mediator.Send(new RevokeTenantInviteCommand(id, CallerTenantId));
+        return Ok(new { message = "Invite revoked." });
+    }
+
+    [HttpPost("users/{id}/suspend")]
+    public async Task<IActionResult> SuspendUser(string id)
+    {
+        await mediator.Send(new SuspendTenantUserCommand(id, CallerTenantId, currentUserService.UserId));
+        return Ok(new { message = "User suspended." });
+    }
+
     [HttpPut("users/{id}")]
     public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateTenantUserRequest request)
     {
@@ -61,6 +90,10 @@ public class TenantAdminController(IMediator mediator, ICurrentUserService curre
     [HttpGet("roles")]
     public async Task<IActionResult> GetRoles()
         => Ok(await mediator.Send(new GetTenantRolesQuery(CallerTenantId)));
+
+    [HttpGet("context")]
+    public async Task<IActionResult> GetContext()
+        => Ok(await mediator.Send(new GetTenantByIdQuery(CallerTenantId)));
 
     [HttpPost("roles")]
     public async Task<IActionResult> CreateRole([FromBody] CreateTenantRoleRequest request)

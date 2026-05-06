@@ -20,9 +20,11 @@ public static class AuditEventType
     public const string UserDeleteFailed = "UserDeleteFailed";
     public const string UserInvited = "UserInvited";
     public const string UserInviteResent = "UserInviteResent";
+    public const string UserInviteRevoked = "UserInviteRevoked";
     public const string UserInviteAccepted = "UserInviteAccepted";
     public const string UserInviteAcceptFailed = "UserInviteAcceptFailed";
     public const string UserInviteValidateFailed = "UserInviteValidateFailed";
+    public const string UserSuspended = "UserSuspended";
 
     public const string RoleCreated = "RoleCreated";
     public const string RoleCreateFailed = "RoleCreateFailed";

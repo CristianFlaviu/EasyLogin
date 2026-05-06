@@ -1,0 +1,46 @@
+<h2 mat-dialog-title>Invite Team Member</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="dialog-form">
+    <mat-form-field class="full-width">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" type="email" autocomplete="email" />
+      @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+        <mat-error>Required</mat-error>
+      }
+      @if (form.get('email')?.hasError('email')) {
+        <mat-error>Invalid email</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>Role</mat-label>
+      <mat-select formControlName="tenantRoleId" [disabled]="rolesLoading">
+        @for (role of roles; track role.id) {
+          <mat-option [value]="role.id">{{ role.name }}</mat-option>
+        }
+      </mat-select>
+      @if (form.get('tenantRoleId')?.hasError('required') && form.get('tenantRoleId')?.touched) {
+        <mat-error>Required</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-flat-button color="primary"
+          [disabled]="form.invalid || loading || rolesLoading"
+          (click)="submit()">
+    @if (loading) {
+      <mat-spinner diameter="20" />
+    } @else {
+      Send Invite
+    }
+  </button>
+</mat-dialog-actions>
+
+<style>
+  .dialog-form { display: flex; flex-direction: column; gap: 4px; min-width: 420px; padding-top: 8px; }
+  .full-width { width: 100%; }
+</style>
