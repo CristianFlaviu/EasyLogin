@@ -1,4 +1,5 @@
 using EasyLogin.Infrastructure.Identity;
+using EasyLogin.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,6 +11,11 @@ public class AppIdentityUserConfiguration : IEntityTypeConfiguration<AppIdentity
     {
         builder.Property(u => u.FirstName).HasMaxLength(100).IsRequired();
         builder.Property(u => u.LastName).HasMaxLength(100).IsRequired();
+        builder.Property(u => u.Status)
+            .HasConversion<string>()
+            .HasMaxLength(20)
+            .HasDefaultValue(UserStatus.Active)
+            .IsRequired();
         builder.Property(u => u.RefreshTokenHash).HasMaxLength(256);
 
         builder.HasIndex(u => u.RefreshTokenHash)

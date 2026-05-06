@@ -15,7 +15,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { UserListItem, PaginatedList } from '../../../core/models/user.model';
 import { CompanyItem } from '../../../core/models/company.model';
 import { UserDialogComponent } from '../user-dialog/user-dialog.component';
+import { InviteUserDialogComponent } from '../../superadmin/invite-user-dialog/invite-user-dialog.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+
+interface ApiErrorBody {
+  message?: string;
+}
 
 @Component({
   selector: 'app-user-list',
@@ -76,6 +81,18 @@ export class UserListComponent implements OnInit {
     ref.afterClosed().subscribe(result => { if (result) this.loadUsers(); });
   }
 
+  openInviteDialog(): void {
+    const ref = this.dialog.open(InviteUserDialogComponent, {
+      data: { companies: this.companies, pendingUsers: this.users.filter(user => user.status === 'Pending') },
+      width: '540px',
+    });
+    ref.afterClosed().subscribe(result => {
+      if (!result) return;
+      this.snackBar.open('Invite sent.', 'Close', { duration: 3000 });
+      this.loadUsers();
+    });
+  }
+
   openEditDialog(user: UserListItem): void {
     this.admin.getUser(user.id).subscribe({
       next: detail => {
@@ -109,5 +126,34 @@ export class UserListComponent implements OnInit {
         },
       });
     });
+  }
+
+  resendInvite(user: UserListItem): void {
+    this.admin.resendInvite(user.id).subscribe({
+      next: () => this.snackBar.open('Invite resent.', 'Close', { duration: 3000 }),
+      error: err => {
+        const body = err.error as ApiErrorBody | null;
+        this.snackBar.open(body?.message ?? 'Could not resend invite.', 'Close', { duration: 4000 });
+      },
+    });
+  }
+
+  statusClass(user: UserListItem): string {
+    switch (user.status) {
+      case 'Active':
+        return 'chip-active';
+      case 'Pending':
+        return 'chip-pending';
+      case 'Suspended':
+        return 'chip-suspended';
+      case 'Expired':
+        return 'chip-expired';
+      default:
+        return user.isActive ? 'chip-active' : 'chip-expired';
+    }
+  }
+
+  statusText(user: UserListItem): string {
+    return user.status || (user.isActive ? 'Active' : 'Suspended');
   }
 }

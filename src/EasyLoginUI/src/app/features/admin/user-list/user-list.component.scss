@@ -7,6 +7,7 @@
 mat-card-header {
   display: flex;
   align-items: center;
+  gap: 8px;
   margin-bottom: 16px;
 }
 
@@ -24,7 +25,15 @@ mat-card-header {
   --mdc-chip-label-text-color: green;
 }
 
-.chip-inactive {
+.chip-pending {
+  --mdc-chip-label-text-color: #b26a00;
+}
+
+.chip-suspended {
+  --mdc-chip-label-text-color: #c62828;
+}
+
+.chip-expired {
   --mdc-chip-label-text-color: gray;
 }
 

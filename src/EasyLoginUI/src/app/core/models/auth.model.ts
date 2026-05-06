@@ -28,6 +28,18 @@ export interface ResetPasswordRequest {
   confirmPassword: string;
 }
 
+export interface AcceptInviteRequest {
+  token: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export interface InviteValidationResponse {
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
 export interface RefreshTokenRequest {
   accessToken: string;
   refreshToken: string;

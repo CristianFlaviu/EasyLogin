@@ -10,8 +10,9 @@ public class IdentityMappingConfig : IRegister
         config.NewConfig<AppIdentityUser, ApplicationUser>()
             .Map(dest => dest.Id, src => src.Id)
             .Map(dest => dest.Email, src => src.Email ?? string.Empty)
+            .Map(dest => dest.Status, src => src.Status)
             .Map(dest => dest.CompanyId, src => src.CompanyId)
-            .Ignore(dest => dest.CompanyName);
+            .Ignore(dest => dest.IsActive);
 
         config.NewConfig<ApplicationUser, AppIdentityUser>()
             .Map(dest => dest.Id, src => src.Id)

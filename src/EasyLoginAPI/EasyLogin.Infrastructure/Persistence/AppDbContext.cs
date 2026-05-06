@@ -12,6 +12,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<CompanyRole> CompanyRoles => Set<CompanyRole>();
     public DbSet<UserCompanyRole> UserCompanyRoles => Set<UserCompanyRole>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<InviteToken> InviteTokens => Set<InviteToken>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

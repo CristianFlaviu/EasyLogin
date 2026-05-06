@@ -106,4 +106,23 @@ export class CompanyUserListComponent implements OnInit {
       });
     });
   }
+
+  statusClass(user: UserListItem): string {
+    switch (user.status) {
+      case 'Active':
+        return 'chip-active';
+      case 'Pending':
+        return 'chip-pending';
+      case 'Suspended':
+        return 'chip-suspended';
+      case 'Expired':
+        return 'chip-expired';
+      default:
+        return user.isActive ? 'chip-active' : 'chip-expired';
+    }
+  }
+
+  statusText(user: UserListItem): string {
+    return user.status || (user.isActive ? 'Active' : 'Suspended');
+  }
 }

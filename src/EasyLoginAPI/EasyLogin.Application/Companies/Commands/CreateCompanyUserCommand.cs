@@ -83,6 +83,6 @@ public class CreateCompanyUserCommandHandler(
             detail.Id, detail.FirstName, detail.LastName, detail.Email,
             detail.IsActive, detail.CreatedAt, detail.UpdatedAt,
             detail.CompanyId, detail.CompanyName,
-            systemRoles, companyRoles);
+            systemRoles, companyRoles, detail.Status.ToString());
     }
 }

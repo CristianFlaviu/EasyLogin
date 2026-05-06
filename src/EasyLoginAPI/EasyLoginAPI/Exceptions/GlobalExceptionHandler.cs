@@ -1,4 +1,5 @@
 using FluentValidation;
+using EasyLogin.Application.Common;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,6 +22,9 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
             }),
             UnauthorizedAccessException => (401, new { message = "Unauthorised" }),
             KeyNotFoundException => (404, new { message = "Not found" }),
+            InviteTokenExpiredException => (410, new { code = "InviteExpired", message = exception.Message }),
+            InviteTokenUsedException => (409, new { code = "InviteAlreadyUsed", message = exception.Message }),
+            InviteAlreadyPendingException => (409, new { code = "InvitePending", message = exception.Message }),
             InvalidOperationException ioe => (409, new { message = ioe.Message }),
             _ => (500, (object)new { message = "An unexpected error occurred" })
         };

@@ -5,7 +5,8 @@ import { jwtDecode } from 'jwt-decode';
 import { ApiService } from './api.service';
 import {
   AuthResponse, LoginRequest,
-  ForgotPasswordRequest, ResetPasswordRequest, RefreshTokenRequest
+  ForgotPasswordRequest, ResetPasswordRequest, RefreshTokenRequest,
+  AcceptInviteRequest, InviteValidationResponse,
 } from '../models/auth.model';
 import { UserProfile } from '../models/user.model';
 
@@ -109,5 +110,13 @@ export class AuthService {
 
   resetPassword(req: ResetPasswordRequest): Observable<void> {
     return this.api.post<void>('/auth/reset-password', req);
+  }
+
+  validateInviteToken(token: string): Observable<InviteValidationResponse> {
+    return this.api.get<InviteValidationResponse>(`/auth/invite/validate?token=${encodeURIComponent(token)}`);
+  }
+
+  acceptInvite(req: AcceptInviteRequest): Observable<void> {
+    return this.api.post<void>('/auth/accept-invite', req);
   }
 }

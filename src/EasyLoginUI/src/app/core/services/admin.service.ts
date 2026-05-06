@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import {
   PaginatedList, UserListItem, UserDetail, RoleItem,
-  AdminCreateUserRequest, UpdateUserRequest, CreateRoleRequest,
+  AdminCreateUserRequest, UpdateUserRequest, CreateRoleRequest, InviteUserRequest,
 } from '../models/user.model';
 import { CompanyItem, CompanyRoleItem, CreateCompanyRequest, UpdateCompanyRequest } from '../models/company.model';
 
@@ -23,6 +23,14 @@ export class AdminService {
 
   createUser(request: AdminCreateUserRequest): Observable<UserDetail> {
     return this.api.post<UserDetail>('/superadmin/users', request);
+  }
+
+  inviteUser(request: InviteUserRequest): Observable<UserDetail> {
+    return this.api.post<UserDetail>('/superadmin/users/invite', request);
+  }
+
+  resendInvite(userId: string): Observable<void> {
+    return this.api.post<void>(`/superadmin/users/${userId}/resend-invite`, {});
   }
 
   updateUser(id: string, request: UpdateUserRequest): Observable<UserDetail> {

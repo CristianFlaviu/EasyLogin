@@ -11,13 +11,17 @@ public record UserListItemResponse(
     string Id, string FirstName, string LastName, string Email,
     bool IsActive, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt,
     Guid? CompanyId, string? CompanyName,
-    IList<string> Roles, IList<string> CompanyRoles);
+    IList<string> Roles, IList<string> CompanyRoles,
+    string Status);
 
 public record UserDetailResponse(
     string Id, string FirstName, string LastName, string Email,
     bool IsActive, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt,
     Guid? CompanyId, string? CompanyName,
-    IList<string> Roles, IList<string> CompanyRoles);
+    IList<string> Roles, IList<string> CompanyRoles,
+    string Status);
+
+public record InviteValidationResponse(string Email, string FirstName, string LastName);
 
 public record RoleResponse(string Id, string Name, string? Description, bool IsSystemRole, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt);
 

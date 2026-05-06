@@ -1,0 +1,72 @@
+<h2 mat-dialog-title>Invite User</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="dialog-form">
+    <div class="form-row">
+      <mat-form-field>
+        <mat-label>First Name</mat-label>
+        <input matInput formControlName="firstName" autocomplete="given-name" />
+        @if (form.get('firstName')?.hasError('required') && form.get('firstName')?.touched) {
+          <mat-error>Required</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Last Name</mat-label>
+        <input matInput formControlName="lastName" autocomplete="family-name" />
+        @if (form.get('lastName')?.hasError('required') && form.get('lastName')?.touched) {
+          <mat-error>Required</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field class="full-width">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" type="email" autocomplete="email" />
+      @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+        <mat-error>Required</mat-error>
+      }
+      @if (form.get('email')?.hasError('email')) {
+        <mat-error>Invalid email</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>Company</mat-label>
+      <mat-select formControlName="companyId">
+        <mat-option [value]="null">No company</mat-option>
+        @for (company of companies; track company.id) {
+          <mat-option [value]="company.id">{{ company.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>System Roles</mat-label>
+      <mat-select formControlName="systemRoles" multiple>
+        @for (role of systemRoles; track role.id) {
+          <mat-option [value]="role.name">{{ role.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-flat-button color="primary"
+          [disabled]="form.invalid || loading"
+          (click)="submit()">
+    @if (loading) {
+      <mat-spinner diameter="20" />
+    } @else {
+      Send Invite
+    }
+  </button>
+</mat-dialog-actions>
+
+<style>
+  .dialog-form { display: flex; flex-direction: column; gap: 4px; min-width: 440px; padding-top: 8px; }
+  .form-row { display: flex; gap: 12px; }
+  .form-row mat-form-field { flex: 1; }
+</style>

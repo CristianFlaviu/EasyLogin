@@ -34,6 +34,22 @@ public class SuperAdminController(IMediator mediator) : ControllerBase
         return StatusCode(201, result);
     }
 
+    [HttpPost("users/invite")]
+    public async Task<IActionResult> InviteUser([FromBody] InviteUserRequest request)
+    {
+        UserDetailResponse result = await mediator.Send(new InviteUserCommand(
+            request.FirstName, request.LastName, request.Email,
+            request.SystemRoles, request.CompanyId));
+        return StatusCode(201, result);
+    }
+
+    [HttpPost("users/{id}/resend-invite")]
+    public async Task<IActionResult> ResendInvite(string id)
+    {
+        await mediator.Send(new ResendInviteCommand(id));
+        return Ok(new { message = "Invite resent." });
+    }
+
     [HttpPut("users/{id}")]
     public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserRequest request)
     {

@@ -1,0 +1,69 @@
+<div class="auth-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Accept invite</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (state === 'loading') {
+        <div class="state-panel">
+          <mat-spinner diameter="36" />
+        </div>
+      } @else if (state === 'error') {
+        <div class="state-panel">
+          <mat-icon class="error-icon">link_off</mat-icon>
+          <h2>{{ errorTitle }}</h2>
+          <p>{{ errorMessage }}</p>
+          <button mat-flat-button color="primary" type="button" (click)="goToLogin()">Back to login</button>
+        </div>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput [value]="invite?.email" readonly autocomplete="email">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <input matInput formControlName="password"
+                   [type]="hidePassword ? 'password' : 'text'"
+                   autocomplete="new-password">
+            <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+              <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-hint>Min 8 chars, 1 uppercase, 1 digit</mat-hint>
+            @if (form.get('password')?.errors?.['minlength']) {
+              <mat-error>Password must be at least 8 characters</mat-error>
+            } @else if (form.get('password')?.errors?.['pattern']) {
+              <mat-error>Must contain at least 1 uppercase letter and 1 digit</mat-error>
+            } @else if (form.get('password')?.errors?.['required']) {
+              <mat-error>Password is required</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Confirm password</mat-label>
+            <input matInput formControlName="confirmPassword"
+                   [type]="hideConfirm ? 'password' : 'text'"
+                   autocomplete="new-password">
+            <button mat-icon-button matSuffix type="button" (click)="hideConfirm = !hideConfirm">
+              <mat-icon>{{ hideConfirm ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            @if (form.errors?.['passwordMismatch'] && form.get('confirmPassword')?.touched) {
+              <mat-error>Passwords do not match</mat-error>
+            }
+          </mat-form-field>
+
+          <button mat-flat-button class="full-width submit-btn"
+                  [disabled]="form.invalid || submitting" type="submit">
+            @if (submitting) {
+              <mat-spinner diameter="20" />
+            } @else {
+              Set password
+            }
+          </button>
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -16,6 +16,6 @@ public class GetUserByIdQueryHandler(IUserRepository userRepository)
             user.Id, user.FirstName, user.LastName, user.Email,
             user.IsActive, user.CreatedAt, user.UpdatedAt,
             user.CompanyId, user.CompanyName,
-            systemRoles, companyRoles);
+            systemRoles, companyRoles, user.Status.ToString());
     }
 }

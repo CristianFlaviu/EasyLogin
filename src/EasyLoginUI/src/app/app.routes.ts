@@ -21,6 +21,10 @@ export const routes: Routes = [
     path: 'reset-password',
     loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
   },
+  {
+    path: 'accept-invite',
+    loadComponent: () => import('./features/auth/accept-invite/accept-invite.component').then(m => m.AcceptInviteComponent),
+  },
 
   { path: 'dashboard', canActivate: [authGuard], loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) },
   { path: 'profile', canActivate: [authGuard], loadComponent: () => import('./features/user/profile/profile.component').then(m => m.ProfileComponent) },

@@ -3,6 +3,8 @@
 .full-width { width: 100%; }
 .empty-state { text-align: center; padding: 32px; color: var(--mat-sys-on-surface-variant); }
 .chip-active { background-color: #e8f5e9 !important; color: #2e7d32 !important; }
-.chip-inactive { background-color: #fce4ec !important; color: #c62828 !important; }
+.chip-pending { background-color: #fff8e1 !important; color: #b26a00 !important; }
+.chip-suspended { background-color: #fce4ec !important; color: #c62828 !important; }
+.chip-expired { background-color: #eeeeee !important; color: #616161 !important; }
 .you-chip { font-size: 10px !important; height: 18px !important; }
 .muted { color: var(--mat-sys-on-surface-variant); font-size: 14px; }

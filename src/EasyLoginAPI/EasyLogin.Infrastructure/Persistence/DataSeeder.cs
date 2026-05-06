@@ -1,4 +1,5 @@
 using EasyLogin.Infrastructure.Identity;
+using EasyLogin.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -71,7 +72,7 @@ public static class DataSeeder
             FirstName = "Admin",
             LastName = "User",
             EmailConfirmed = true,
-            IsActive = true,
+            Status = UserStatus.Active,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = null
         };

@@ -17,7 +17,7 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
         if (identityUser is null)
             return LoginAttemptResult.Failed("UserNotFound");
 
-        if (!identityUser.IsActive)
+        if (identityUser.Status != UserStatus.Active)
             return LoginAttemptResult.Failed("UserInactive");
 
         if (await userManager.IsLockedOutAsync(identityUser))
@@ -47,13 +47,41 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
             FirstName = firstName,
             LastName = lastName,
             EmailConfirmed = true,
-            IsActive = true,
+            Status = UserStatus.Active,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = null,
             CompanyId = companyId
         };
 
         var result = await userManager.CreateAsync(identityUser, password);
+        if (!result.Succeeded)
+            throw new InvalidOperationException(string.Join(", ", result.Errors.Select(e => e.Description)));
+
+        return await MapWithCompanyAsync(identityUser);
+    }
+
+    public async Task<ApplicationUser?> GetByEmailAsync(string email)
+    {
+        AppIdentityUser? user = await userManager.FindByEmailAsync(email);
+        return user is null ? null : await MapWithCompanyAsync(user);
+    }
+
+    public async Task<ApplicationUser> CreatePendingUserAsync(string firstName, string lastName, string email, Guid? companyId)
+    {
+        AppIdentityUser identityUser = new AppIdentityUser
+        {
+            UserName = email,
+            Email = email,
+            FirstName = firstName,
+            LastName = lastName,
+            EmailConfirmed = true,
+            Status = UserStatus.Pending,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = null,
+            CompanyId = companyId
+        };
+
+        IdentityResult result = await userManager.CreateAsync(identityUser);
         if (!result.Succeeded)
             throw new InvalidOperationException(string.Join(", ", result.Errors.Select(e => e.Description)));
 
@@ -114,6 +142,111 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
         await userManager.UpdateAsync(user);
     }
 
+    public async Task StoreInviteTokenAsync(string userId, string tokenHash, DateTimeOffset expiresAt)
+    {
+        AppIdentityUser user = await userManager.FindByIdAsync(userId)
+            ?? throw new KeyNotFoundException($"User {userId} not found.");
+
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        List<InviteToken> activeTokens = await db.InviteTokens
+            .Where(t => t.UserId == user.Id && !t.IsUsed)
+            .ToListAsync();
+
+        foreach (InviteToken token in activeTokens)
+        {
+            token.IsUsed = true;
+            token.UsedAt = now;
+        }
+
+        db.InviteTokens.Add(new InviteToken
+        {
+            Id = Guid.NewGuid(),
+            UserId = user.Id,
+            TokenHash = tokenHash,
+            ExpiresAt = expiresAt,
+            CreatedAt = now,
+            IsUsed = false,
+            UsedAt = null
+        });
+
+        await db.SaveChangesAsync();
+    }
+
+    public async Task<(string UserId, string Email, string FirstName, string LastName)> ValidateInviteTokenAsync(string tokenHash)
+    {
+        InviteToken invite = await db.InviteTokens
+            .FirstOrDefaultAsync(t => t.TokenHash == tokenHash)
+            ?? throw new KeyNotFoundException("Invite token was not found.");
+
+        AppIdentityUser user = await userManager.FindByIdAsync(invite.UserId)
+            ?? throw new KeyNotFoundException($"User {invite.UserId} not found.");
+
+        if (invite.IsUsed)
+            throw new InviteTokenUsedException("This invite link has already been used.");
+
+        if (invite.ExpiresAt <= DateTimeOffset.UtcNow)
+        {
+            if (user.Status == UserStatus.Pending)
+            {
+                user.Status = UserStatus.Expired;
+                user.UpdatedAt = DateTimeOffset.UtcNow;
+                await userManager.UpdateAsync(user);
+            }
+
+            throw new InviteTokenExpiredException("This invite link has expired.");
+        }
+
+        if (user.Status != UserStatus.Pending)
+            throw new InvalidOperationException("This invite is no longer pending.");
+
+        return (user.Id, user.Email ?? string.Empty, user.FirstName, user.LastName);
+    }
+
+    public async Task<(string UserId, string Email)> AcceptInviteAsync(string tokenHash, string newPassword)
+    {
+        InviteToken invite = await db.InviteTokens
+            .FirstOrDefaultAsync(t => t.TokenHash == tokenHash)
+            ?? throw new KeyNotFoundException("Invite token was not found.");
+
+        AppIdentityUser user = await userManager.FindByIdAsync(invite.UserId)
+            ?? throw new KeyNotFoundException($"User {invite.UserId} not found.");
+
+        if (invite.IsUsed)
+            throw new InviteTokenUsedException("This invite link has already been used.");
+
+        if (invite.ExpiresAt <= DateTimeOffset.UtcNow)
+        {
+            if (user.Status == UserStatus.Pending)
+            {
+                user.Status = UserStatus.Expired;
+                user.UpdatedAt = DateTimeOffset.UtcNow;
+                await userManager.UpdateAsync(user);
+            }
+
+            throw new InviteTokenExpiredException("This invite link has expired.");
+        }
+
+        if (user.Status != UserStatus.Pending)
+            throw new InvalidOperationException("This invite is no longer pending.");
+
+        string resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+        IdentityResult passwordResult = await userManager.ResetPasswordAsync(user, resetToken, newPassword);
+        if (!passwordResult.Succeeded)
+            throw new InvalidOperationException(string.Join(", ", passwordResult.Errors.Select(e => e.Description)));
+
+        user.Status = UserStatus.Active;
+        user.UpdatedAt = DateTimeOffset.UtcNow;
+        IdentityResult updateResult = await userManager.UpdateAsync(user);
+        if (!updateResult.Succeeded)
+            throw new InvalidOperationException(string.Join(", ", updateResult.Errors.Select(e => e.Description)));
+
+        invite.IsUsed = true;
+        invite.UsedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+
+        return (user.Id, user.Email ?? string.Empty);
+    }
+
     public async Task<string> GeneratePasswordResetTokenAsync(string email)
     {
         var user = await userManager.FindByEmailAsync(email)
@@ -162,7 +295,8 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
                 x.u.Id, x.u.FirstName, x.u.LastName, x.u.Email ?? string.Empty,
                 x.u.IsActive, x.u.CreatedAt, x.u.UpdatedAt,
                 x.u.CompanyId, x.CompanyName,
-                systemRoles, cRoles ?? []));
+                systemRoles, cRoles ?? [],
+                x.u.Status.ToString()));
         }
 
         return new PaginatedList<UserListItemResponse>(items, total, pageNumber, pageSize);
@@ -193,7 +327,7 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
 
         user.FirstName = firstName;
         user.LastName = lastName;
-        user.IsActive = isActive;
+        user.Status = isActive ? UserStatus.Active : UserStatus.Suspended;
         user.UpdatedAt = DateTimeOffset.UtcNow;
 
         var updateResult = await userManager.UpdateAsync(user);

@@ -1,5 +1,6 @@
 using EasyLogin.Application.Auth.Commands;
 using EasyLogin.Application.Auth.Dtos;
+using EasyLogin.Application.Auth.Queries;
 using EasyLogin.Application.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -38,6 +39,17 @@ public class AuthController(IMediator mediator, ICurrentUserService currentUserS
     {
         await mediator.Send(new ResetPasswordCommand(request.Email, request.Token, request.Password));
         return Ok(new { message = "Password has been reset successfully." });
+    }
+
+    [HttpGet("invite/validate")]
+    public async Task<IActionResult> ValidateInvite([FromQuery] string token)
+        => Ok(await mediator.Send(new ValidateInviteTokenQuery(token)));
+
+    [HttpPost("accept-invite")]
+    public async Task<IActionResult> AcceptInvite([FromBody] AcceptInviteRequest request)
+    {
+        await mediator.Send(new AcceptInviteCommand(request.Token, request.Password, request.ConfirmPassword));
+        return Ok(new { message = "Invite accepted." });
     }
 
     [HttpPost("refresh")]

@@ -21,6 +21,7 @@ export interface UserListItem {
   companyName: string | null;
   roles: string[];
   companyRoles: string[];
+  status: string;
 }
 
 export interface UserDetail {
@@ -35,6 +36,7 @@ export interface UserDetail {
   companyName: string | null;
   roles: string[];
   companyRoles: string[];
+  status: string;
 }
 
 export interface RoleItem {
@@ -60,6 +62,14 @@ export interface AdminCreateUserRequest {
   lastName: string;
   email: string;
   password: string;
+  systemRoles: string[];
+  companyId: string | null;
+}
+
+export interface InviteUserRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
   systemRoles: string[];
   companyId: string | null;
 }
