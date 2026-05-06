@@ -41,17 +41,30 @@ export class TenantUserListComponent implements OnInit {
   pageSize = 20;
   pageIndex = 0;
   loading = false;
+  contextLoading = true;
 
   get currentUserId(): string | undefined {
     return this.auth.currentUser$.value?.id;
   }
 
   get invitesEnabled(): boolean {
-    return this.tenantContext?.isActive ?? false;
+    return this.tenantContext?.isActive ?? true;
+  }
+
+  get showSuspendedWarning(): boolean {
+    return !this.contextLoading && !this.invitesEnabled;
   }
 
   ngOnInit(): void {
-    this.tenantAdmin.getContext().subscribe({ next: context => (this.tenantContext = context) });
+    this.tenantAdmin.getContext().subscribe({
+      next: context => {
+        this.tenantContext = context;
+        this.contextLoading = false;
+      },
+      error: () => {
+        this.contextLoading = false;
+      },
+    });
     this.loadUsers();
   }
 

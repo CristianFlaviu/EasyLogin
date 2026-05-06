@@ -4,6 +4,7 @@ import { AsyncPipe } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../../core/services/auth.service';
 import { HasRoleDirective } from '../../directives/has-role.directive';
@@ -13,7 +14,7 @@ import { HasRoleDirective } from '../../directives/has-role.directive';
   standalone: true,
   imports: [
     AsyncPipe, RouterLink, RouterLinkActive,
-    MatToolbarModule, MatButtonModule, MatIconModule, MatTooltipModule,
+    MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule,
     HasRoleDirective,
   ],
   templateUrl: './navbar.component.html',

@@ -9,9 +9,6 @@
   <a mat-button routerLink="/dashboard" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">
     Dashboard
   </a>
-  <a mat-button routerLink="/profile" routerLinkActive="active-link">
-    Profile
-  </a>
 
   <!-- SuperAdmin nav -->
   <a mat-button routerLink="/superadmin/tenants" routerLinkActive="active-link" *appHasRole="'SuperAdmin'">
@@ -26,22 +23,35 @@
 
   <!-- TenantAdmin nav -->
   <a mat-button routerLink="/tenant/users" routerLinkActive="active-link" *appHasRole="'TenantAdmin'">
-    My Users
+    Tenant Users
   </a>
   <a mat-button routerLink="/tenant/roles" routerLinkActive="active-link" *appHasRole="'TenantAdmin'">
-    My Roles
+    Tenant Roles
   </a>
 
   <span class="spacer"></span>
 
   @if (auth.currentUser$ | async; as user) {
-    <div class="user-info">
-      <div class="user-avatar">{{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}</div>
-      <span class="user-email">{{ user.email }}</span>
-    </div>
-  }
+    <button mat-icon-button class="user-menu-trigger" [matMenuTriggerFor]="userMenu" matTooltip="Account" aria-label="Open user menu">
+      <span class="user-avatar">{{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}</span>
+    </button>
 
-  <button mat-icon-button matTooltip="Logout" (click)="auth.logout()">
-    <mat-icon>logout</mat-icon>
-  </button>
+    <mat-menu #userMenu="matMenu" xPosition="before">
+      <div class="menu-profile" aria-hidden="true">
+        <div class="menu-avatar">{{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}</div>
+        <div class="menu-copy">
+          <div class="menu-name">{{ user.firstName }} {{ user.lastName }}</div>
+          <div class="menu-email">{{ user.email }}</div>
+        </div>
+      </div>
+      <a mat-menu-item routerLink="/profile">
+        <mat-icon>account_circle</mat-icon>
+        <span>Profile</span>
+      </a>
+      <button mat-menu-item (click)="auth.logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  }
 </mat-toolbar>

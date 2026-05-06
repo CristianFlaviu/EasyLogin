@@ -3,13 +3,13 @@
     <mat-card-header>
       <mat-card-title>Invite Management</mat-card-title>
       <span class="header-spacer"></span>
-      <button mat-flat-button color="primary" [disabled]="!invitesEnabled" (click)="openInviteDialog()">
+      <button mat-flat-button color="primary" [disabled]="contextLoading || !invitesEnabled" (click)="openInviteDialog()">
         <mat-icon>outgoing_mail</mat-icon> Invite Member
       </button>
     </mat-card-header>
 
     <mat-card-content>
-      @if (!invitesEnabled) {
+      @if (showSuspendedWarning) {
         <p class="warning">Your organization is suspended. Sending invites is disabled.</p>
       }
 
