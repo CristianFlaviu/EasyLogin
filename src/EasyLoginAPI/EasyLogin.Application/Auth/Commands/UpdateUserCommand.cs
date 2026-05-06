@@ -9,7 +9,7 @@ namespace EasyLogin.Application.Auth.Commands;
 public record UpdateUserCommand(
     string UserId, string FirstName, string LastName, string Email,
     bool IsActive, IList<string> SystemRoles, string? NewPassword,
-    Guid? CallerCompanyId = null)
+    Guid? CallerTenantId = null)
     : IRequest<UserDetailResponse>;
 
 public class UpdateUserCommandHandler(IUserRepository userRepository, IAuditLogger auditLogger)
@@ -17,14 +17,14 @@ public class UpdateUserCommandHandler(IUserRepository userRepository, IAuditLogg
 {
     public async Task<UserDetailResponse> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
-        var (before, beforeSysRoles, _) = await userRepository.GetByIdWithRolesAsync(request.UserId, request.CallerCompanyId);
+        var (before, beforeSysRoles, _) = await userRepository.GetByIdWithRolesAsync(request.UserId, request.CallerTenantId);
 
         try
         {
             await userRepository.UpdateUserAsync(
                 request.UserId, request.FirstName, request.LastName,
                 request.Email, request.IsActive, request.SystemRoles,
-                request.NewPassword, request.CallerCompanyId);
+                request.NewPassword, request.CallerTenantId);
         }
         catch (Exception ex)
         {
@@ -40,7 +40,7 @@ public class UpdateUserCommandHandler(IUserRepository userRepository, IAuditLogg
             throw;
         }
 
-        var (user, systemRoles, companyRoles) = await userRepository.GetByIdWithRolesAsync(request.UserId, request.CallerCompanyId);
+        var (user, systemRoles, tenantRoles) = await userRepository.GetByIdWithRolesAsync(request.UserId, request.CallerTenantId);
 
         var diff = new Dictionary<string, string>();
         AuditDiffBuilder.ForField("firstName", before.FirstName, user.FirstName, diff);
@@ -64,7 +64,7 @@ public class UpdateUserCommandHandler(IUserRepository userRepository, IAuditLogg
         return new UserDetailResponse(
             user.Id, user.FirstName, user.LastName, user.Email,
             user.IsActive, user.CreatedAt, user.UpdatedAt,
-            user.CompanyId, user.CompanyName,
-            systemRoles, companyRoles, user.Status.ToString());
+            user.TenantId, user.TenantName,
+            systemRoles, tenantRoles, user.Status.ToString());
     }
 }

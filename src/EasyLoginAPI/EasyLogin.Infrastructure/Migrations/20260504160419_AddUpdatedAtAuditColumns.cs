@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -13,13 +13,13 @@ namespace EasyLogin.Infrastructure.Migrations
         {
             migrationBuilder.AddColumn<DateTimeOffset>(
                 name: "UpdatedAt",
-                table: "CompanyRoles",
+                table: "TenantRoles",
                 type: "datetimeoffset",
                 nullable: true);
 
             migrationBuilder.AddColumn<DateTimeOffset>(
                 name: "UpdatedAt",
-                table: "Companies",
+                table: "Tenants",
                 type: "datetimeoffset",
                 nullable: true);
 
@@ -41,11 +41,11 @@ namespace EasyLogin.Infrastructure.Migrations
         {
             migrationBuilder.DropColumn(
                 name: "UpdatedAt",
-                table: "CompanyRoles");
+                table: "TenantRoles");
 
             migrationBuilder.DropColumn(
                 name: "UpdatedAt",
-                table: "Companies");
+                table: "Tenants");
 
             migrationBuilder.DropColumn(
                 name: "UpdatedAt",

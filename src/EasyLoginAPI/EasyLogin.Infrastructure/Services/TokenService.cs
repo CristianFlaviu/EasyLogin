@@ -34,8 +34,8 @@ public class TokenService(IConfiguration config) : ITokenService
             new("lastName", user.LastName),
         };
 
-        if (user.CompanyId.HasValue)
-            claims.Add(new Claim("company_id", user.CompanyId.Value.ToString()));
+        if (user.TenantId.HasValue)
+            claims.Add(new Claim("tenant_id", user.TenantId.Value.ToString()));
 
         claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 

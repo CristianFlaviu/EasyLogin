@@ -5,7 +5,7 @@ using MediatR;
 
 namespace EasyLogin.Application.Auth.Commands;
 
-public record DeleteUserCommand(string UserId, Guid? CallerCompanyId = null) : IRequest;
+public record DeleteUserCommand(string UserId, Guid? CallerTenantId = null) : IRequest;
 
 public class DeleteUserCommandHandler(IUserRepository userRepository, IAuditLogger auditLogger)
     : IRequestHandler<DeleteUserCommand>
@@ -25,7 +25,7 @@ public class DeleteUserCommandHandler(IUserRepository userRepository, IAuditLogg
 
         try
         {
-            await userRepository.DeleteUserAsync(request.UserId, request.CallerCompanyId);
+            await userRepository.DeleteUserAsync(request.UserId, request.CallerTenantId);
         }
         catch (Exception ex)
         {

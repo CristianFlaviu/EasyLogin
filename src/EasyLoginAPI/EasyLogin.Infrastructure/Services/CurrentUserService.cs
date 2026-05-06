@@ -9,11 +9,11 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
         httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value
         ?? httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-    public Guid? CompanyId
+    public Guid? TenantId
     {
         get
         {
-            var val = httpContextAccessor.HttpContext?.User?.FindFirst("company_id")?.Value;
+            var val = httpContextAccessor.HttpContext?.User?.FindFirst("tenant_id")?.Value;
             return Guid.TryParse(val, out var id) ? id : null;
         }
     }

@@ -34,5 +34,5 @@ public static class AuditTargetType
 {
     public const string User = "User";
     public const string Role = "Role";
-    public const string CompanyRole = "CompanyRole";
+    public const string TenantRole = "TenantRole";
 }

@@ -33,10 +33,10 @@
 
     @if (isSuperAdmin) {
       <mat-form-field class="full-width">
-        <mat-label>Company</mat-label>
-        <mat-select formControlName="companyId">
-          <mat-option [value]="null">— No company —</mat-option>
-          @for (c of companies; track c.id) {
+        <mat-label>Tenant</mat-label>
+        <mat-select formControlName="tenantId">
+          <mat-option [value]="null">— No tenant —</mat-option>
+          @for (c of tenants; track c.id) {
             <mat-option [value]="c.id">{{ c.name }}</mat-option>
           }
         </mat-select>
@@ -52,9 +52,9 @@
       </mat-form-field>
     } @else {
       <mat-form-field class="full-width">
-        <mat-label>Company Roles</mat-label>
-        <mat-select formControlName="companyRoleIds" multiple>
-          @for (role of companyRoles; track role.id) {
+        <mat-label>Tenant Roles</mat-label>
+        <mat-select formControlName="tenantRoleIds" multiple>
+          @for (role of tenantRoles; track role.id) {
             <mat-option [value]="role.id">{{ role.name }}</mat-option>
           }
         </mat-select>

@@ -12,15 +12,15 @@ public record RefreshTokenRequest(string AccessToken, string RefreshToken);
 
 public record RevokeTokenRequest(string RefreshToken);
 
-public record AdminCreateUserRequest(string FirstName, string LastName, string Email, string Password, List<string> SystemRoles, Guid? CompanyId = null);
+public record AdminCreateUserRequest(string FirstName, string LastName, string Email, string Password, List<string> SystemRoles, Guid? TenantId = null);
 
-public record InviteUserRequest(string FirstName, string LastName, string Email, List<string> SystemRoles, Guid? CompanyId);
+public record InviteUserRequest(string FirstName, string LastName, string Email, List<string> SystemRoles, Guid? TenantId);
 
-public record CreateCompanyUserRequest(string FirstName, string LastName, string Email, string Password, List<Guid> CompanyRoleIds);
+public record CreateTenantUserRequest(string FirstName, string LastName, string Email, string Password, List<Guid> TenantRoleIds);
 
 public record UpdateUserRequest(string FirstName, string LastName, string Email, bool IsActive, List<string> SystemRoles, string? NewPassword);
 
-public record UpdateCompanyUserRequest(string FirstName, string LastName, string Email, bool IsActive, List<Guid> CompanyRoleIds, string? NewPassword);
+public record UpdateTenantUserRequest(string FirstName, string LastName, string Email, bool IsActive, List<Guid> TenantRoleIds, string? NewPassword);
 
 public record AcceptInviteRequest(string Token, string Password, string ConfirmPassword);
 

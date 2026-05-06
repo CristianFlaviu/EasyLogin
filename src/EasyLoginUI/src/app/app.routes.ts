@@ -31,10 +31,10 @@ export const routes: Routes = [
 
   // SuperAdmin routes
   {
-    path: 'superadmin/companies',
+    path: 'superadmin/tenants',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['SuperAdmin'] },
-    loadComponent: () => import('./features/superadmin/company-list/company-list.component').then(m => m.CompanyListComponent),
+    loadComponent: () => import('./features/superadmin/tenant-list/tenant-list.component').then(m => m.TenantListComponent),
   },
   {
     path: 'superadmin/users',
@@ -49,18 +49,18 @@ export const routes: Routes = [
     loadComponent: () => import('./features/admin/role-list/role-list.component').then(m => m.RoleListComponent),
   },
 
-  // CompanyAdmin routes
+  // TenantAdmin routes
   {
-    path: 'company/users',
+    path: 'tenant/users',
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['CompanyAdmin'] },
-    loadComponent: () => import('./features/company/user-list/company-user-list.component').then(m => m.CompanyUserListComponent),
+    data: { roles: ['TenantAdmin'] },
+    loadComponent: () => import('./features/tenant/user-list/tenant-user-list.component').then(m => m.TenantUserListComponent),
   },
   {
-    path: 'company/roles',
+    path: 'tenant/roles',
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['CompanyAdmin'] },
-    loadComponent: () => import('./features/company/role-list/company-role-list.component').then(m => m.CompanyRoleListComponent),
+    data: { roles: ['TenantAdmin'] },
+    loadComponent: () => import('./features/tenant/role-list/tenant-role-list.component').then(m => m.TenantRoleListComponent),
   },
 
   { path: 'unauthorized', loadComponent: () => import('./shared/components/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent) },

@@ -10,11 +10,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AdminService } from '../../../core/services/admin.service';
-import { CompanyItem } from '../../../core/models/company.model';
+import { TenantItem } from '../../../core/models/tenant.model';
 import { RoleItem, UserListItem } from '../../../core/models/user.model';
 
 interface InviteDialogData {
-  companies: CompanyItem[];
+  tenants: TenantItem[];
   pendingUsers: UserListItem[];
 }
 
@@ -39,7 +39,7 @@ export class InviteUserDialogComponent implements OnInit {
   readonly dialogRef = inject(MatDialogRef<InviteUserDialogComponent>);
   readonly data = inject<InviteDialogData>(MAT_DIALOG_DATA);
 
-  companies: CompanyItem[] = this.data.companies;
+  tenants: TenantItem[] = this.data.tenants;
   systemRoles: RoleItem[] = [];
   loading = false;
 
@@ -47,7 +47,7 @@ export class InviteUserDialogComponent implements OnInit {
     firstName: new FormControl('', Validators.required),
     lastName: new FormControl('', Validators.required),
     email: new FormControl('', [Validators.required, Validators.email]),
-    companyId: new FormControl<string | null>(null),
+    tenantId: new FormControl<string | null>(null),
     systemRoles: new FormControl<string[]>([]),
   });
 
@@ -65,7 +65,7 @@ export class InviteUserDialogComponent implements OnInit {
       firstName: value.firstName!,
       lastName: value.lastName!,
       email: value.email!,
-      companyId: value.companyId,
+      tenantId: value.tenantId,
       systemRoles: value.systemRoles ?? [],
     }).subscribe({
       next: result => {

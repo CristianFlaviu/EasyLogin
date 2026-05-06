@@ -17,7 +17,7 @@ interface JwtPayload {
   email: string;
   firstName: string;
   lastName: string;
-  company_id?: string;
+  tenant_id?: string;
   [key: string]: unknown;
 }
 
@@ -61,10 +61,10 @@ export class AuthService {
       email: decoded.email,
       firstName: decoded.firstName,
       lastName: decoded.lastName,
-      companyId: decoded.company_id ?? null,
-      companyName: null,
+      tenantId: decoded.tenant_id ?? null,
+      tenantName: null,
       roles,
-      companyRoles: [],
+      tenantRoles: [],
     };
   }
 

@@ -8,7 +8,7 @@ namespace EasyLogin.Application.Auth.Commands;
 
 public record InviteUserCommand(
     string FirstName, string LastName, string Email,
-    IList<string> SystemRoles, Guid? CompanyId)
+    IList<string> SystemRoles, Guid? TenantId)
     : IRequest<UserDetailResponse>;
 
 public class InviteUserCommandHandler(
@@ -36,7 +36,7 @@ public class InviteUserCommandHandler(
         try
         {
             user = await userRepository.CreatePendingUserAsync(
-                request.FirstName, request.LastName, request.Email, request.CompanyId);
+                request.FirstName, request.LastName, request.Email, request.TenantId);
 
             foreach (string role in request.SystemRoles)
                 await userRepository.AssignRoleAsync(user.Id, role);
@@ -70,7 +70,7 @@ public class InviteUserCommandHandler(
             throw;
         }
 
-        (ApplicationUser detail, IList<string> systemRoles, IList<string> companyRoles) =
+        (ApplicationUser detail, IList<string> systemRoles, IList<string> tenantRoles) =
             await userRepository.GetByIdWithRolesAsync(user.Id);
 
         await auditLogger.WriteAsync(new AuditEntry
@@ -83,7 +83,7 @@ public class InviteUserCommandHandler(
             Metadata = new Dictionary<string, string>
             {
                 ["systemRoles"] = string.Join(',', systemRoles),
-                ["companyId"] = request.CompanyId?.ToString() ?? string.Empty,
+                ["tenantId"] = request.TenantId?.ToString() ?? string.Empty,
                 ["expiresInHours"] = ExpiryHours.ToString()
             }
         }, cancellationToken);
@@ -91,7 +91,7 @@ public class InviteUserCommandHandler(
         return new UserDetailResponse(
             detail.Id, detail.FirstName, detail.LastName, detail.Email,
             detail.IsActive, detail.CreatedAt, detail.UpdatedAt,
-            detail.CompanyId, detail.CompanyName,
-            systemRoles, companyRoles, detail.Status.ToString());
+            detail.TenantId, detail.TenantName,
+            systemRoles, tenantRoles, detail.Status.ToString());
     }
 }

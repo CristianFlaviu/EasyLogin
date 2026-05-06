@@ -13,5 +13,5 @@ public class AppIdentityUser : IdentityUser
     public DateTimeOffset? UpdatedAt { get; set; }
     public string? RefreshTokenHash { get; set; }
     public DateTimeOffset? RefreshTokenExpiry { get; set; }
-    public Guid? CompanyId { get; set; }
+    public Guid? TenantId { get; set; }
 }

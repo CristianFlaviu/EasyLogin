@@ -1,9 +1,9 @@
 using EasyLogin.Application.Auth.Commands;
 using EasyLogin.Application.Auth.Dtos;
 using EasyLogin.Application.Auth.Queries;
-using EasyLogin.Application.Companies.Commands;
-using EasyLogin.Application.Companies.Dtos;
-using EasyLogin.Application.Companies.Queries;
+using EasyLogin.Application.Tenants.Commands;
+using EasyLogin.Application.Tenants.Dtos;
+using EasyLogin.Application.Tenants.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +30,7 @@ public class SuperAdminController(IMediator mediator) : ControllerBase
     {
         var result = await mediator.Send(new AdminCreateUserCommand(
             request.FirstName, request.LastName, request.Email, request.Password,
-            request.SystemRoles, request.CompanyId));
+            request.SystemRoles, request.TenantId));
         return StatusCode(201, result);
     }
 
@@ -39,7 +39,7 @@ public class SuperAdminController(IMediator mediator) : ControllerBase
     {
         UserDetailResponse result = await mediator.Send(new InviteUserCommand(
             request.FirstName, request.LastName, request.Email,
-            request.SystemRoles, request.CompanyId));
+            request.SystemRoles, request.TenantId));
         return StatusCode(201, result);
     }
 
@@ -86,42 +86,42 @@ public class SuperAdminController(IMediator mediator) : ControllerBase
         return NoContent();
     }
 
-    // ── Companies ─────────────────────────────────────────────────────────────
+    // ── Tenants ─────────────────────────────────────────────────────────────
 
-    [HttpGet("companies")]
-    public async Task<IActionResult> GetCompanies()
-        => Ok(await mediator.Send(new GetAllCompaniesQuery()));
+    [HttpGet("tenants")]
+    public async Task<IActionResult> GetTenants()
+        => Ok(await mediator.Send(new GetAllTenantsQuery()));
 
-    [HttpGet("companies/{id:guid}")]
-    public async Task<IActionResult> GetCompany(Guid id)
-        => Ok(await mediator.Send(new GetCompanyByIdQuery(id)));
+    [HttpGet("tenants/{id:guid}")]
+    public async Task<IActionResult> GetTenant(Guid id)
+        => Ok(await mediator.Send(new GetTenantByIdQuery(id)));
 
-    [HttpPost("companies")]
-    public async Task<IActionResult> CreateCompany([FromBody] CreateCompanyRequest request)
+    [HttpPost("tenants")]
+    public async Task<IActionResult> CreateTenant([FromBody] CreateTenantRequest request)
     {
-        var result = await mediator.Send(new CreateCompanyCommand(request.Name));
+        var result = await mediator.Send(new CreateTenantCommand(request.Name));
         return StatusCode(201, result);
     }
 
-    [HttpPut("companies/{id:guid}")]
-    public async Task<IActionResult> UpdateCompany(Guid id, [FromBody] UpdateCompanyRequest request)
-        => Ok(await mediator.Send(new UpdateCompanyCommand(id, request.Name, request.IsActive)));
+    [HttpPut("tenants/{id:guid}")]
+    public async Task<IActionResult> UpdateTenant(Guid id, [FromBody] UpdateTenantRequest request)
+        => Ok(await mediator.Send(new UpdateTenantCommand(id, request.Name, request.IsActive)));
 
-    [HttpDelete("companies/{id:guid}")]
-    public async Task<IActionResult> DeleteCompany(Guid id)
+    [HttpDelete("tenants/{id:guid}")]
+    public async Task<IActionResult> DeleteTenant(Guid id)
     {
-        await mediator.Send(new DeleteCompanyCommand(id));
+        await mediator.Send(new DeleteTenantCommand(id));
         return NoContent();
     }
 
-    [HttpGet("companies/{id:guid}/users")]
-    public async Task<IActionResult> GetCompanyUsers(
+    [HttpGet("tenants/{id:guid}/users")]
+    public async Task<IActionResult> GetTenantUsers(
         Guid id, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
         => Ok(await mediator.Send(new GetAllUsersQuery(pageNumber, pageSize, id)));
 
-    [HttpGet("companies/{id:guid}/roles")]
-    public async Task<IActionResult> GetCompanyRoles(Guid id)
-        => Ok(await mediator.Send(new GetCompanyRolesQuery(id)));
+    [HttpGet("tenants/{id:guid}/roles")]
+    public async Task<IActionResult> GetTenantRoles(Guid id)
+        => Ok(await mediator.Send(new GetTenantRolesQuery(id)));
 
     // ── Audit ────────────────────────────────────────────────────────────────
 

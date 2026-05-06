@@ -8,7 +8,7 @@ namespace EasyLogin.Application.Auth.Commands;
 
 public record AdminCreateUserCommand(
     string FirstName, string LastName, string Email, string Password,
-    IList<string> SystemRoles, Guid? CompanyId)
+    IList<string> SystemRoles, Guid? TenantId)
     : IRequest<UserDetailResponse>;
 
 public class AdminCreateUserCommandHandler(
@@ -37,7 +37,7 @@ public class AdminCreateUserCommandHandler(
         try
         {
             user = await userRepository.CreateUserAsync(
-                request.FirstName, request.LastName, request.Email, request.Password, request.CompanyId);
+                request.FirstName, request.LastName, request.Email, request.Password, request.TenantId);
 
             foreach (var role in request.SystemRoles)
                 await userRepository.AssignRoleAsync(user.Id, role);
@@ -62,7 +62,7 @@ public class AdminCreateUserCommandHandler(
         });
         await emailService.SendAsync(request.Email, "Welcome to EasyLogin", body);
 
-        var (detail, systemRoles, companyRoles) = await userRepository.GetByIdWithRolesAsync(user.Id);
+        var (detail, systemRoles, tenantRoles) = await userRepository.GetByIdWithRolesAsync(user.Id);
 
         await auditLogger.WriteAsync(new AuditEntry
         {
@@ -74,14 +74,14 @@ public class AdminCreateUserCommandHandler(
             Metadata = new Dictionary<string, string>
             {
                 ["systemRoles"] = string.Join(',', systemRoles),
-                ["companyId"] = request.CompanyId?.ToString() ?? string.Empty
+                ["tenantId"] = request.TenantId?.ToString() ?? string.Empty
             }
         }, cancellationToken);
 
         return new UserDetailResponse(
             detail.Id, detail.FirstName, detail.LastName, detail.Email,
             detail.IsActive, detail.CreatedAt, detail.UpdatedAt,
-            detail.CompanyId, detail.CompanyName,
-            systemRoles, companyRoles, detail.Status.ToString());
+            detail.TenantId, detail.TenantName,
+            systemRoles, tenantRoles, detail.Status.ToString());
     }
 }

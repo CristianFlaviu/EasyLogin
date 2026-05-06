@@ -29,7 +29,7 @@ public static class DataSeeder
 
     private static async Task SeedRolesAsync(RoleManager<AppIdentityRole> roleManager, ILogger logger)
     {
-        string[] roles = ["SuperAdmin", "CompanyAdmin", "User"];
+        string[] roles = ["SuperAdmin", "TenantAdmin", "User"];
         foreach (var roleName in roles)
         {
             if (!await roleManager.RoleExistsAsync(roleName))

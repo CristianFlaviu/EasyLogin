@@ -13,7 +13,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AdminService } from '../../../core/services/admin.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserListItem, PaginatedList } from '../../../core/models/user.model';
-import { CompanyItem } from '../../../core/models/company.model';
+import { TenantItem } from '../../../core/models/tenant.model';
 import { UserDialogComponent } from '../user-dialog/user-dialog.component';
 import { InviteUserDialogComponent } from '../../superadmin/invite-user-dialog/invite-user-dialog.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -38,9 +38,9 @@ export class UserListComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  displayedColumns = ['name', 'email', 'company', 'roles', 'status', 'actions'];
+  displayedColumns = ['name', 'email', 'tenant', 'roles', 'status', 'actions'];
   users: UserListItem[] = [];
-  companies: CompanyItem[] = [];
+  tenants: TenantItem[] = [];
   totalCount = 0;
   pageSize = 20;
   pageIndex = 0;
@@ -51,7 +51,7 @@ export class UserListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.admin.getCompanies().subscribe({ next: c => (this.companies = c) });
+    this.admin.getTenants().subscribe({ next: c => (this.tenants = c) });
     this.loadUsers();
   }
 
@@ -75,7 +75,7 @@ export class UserListComponent implements OnInit {
 
   openCreateDialog(): void {
     const ref = this.dialog.open(UserDialogComponent, {
-      data: { user: null, mode: 'superadmin', companies: this.companies },
+      data: { user: null, mode: 'superadmin', tenants: this.tenants },
       width: '540px',
     });
     ref.afterClosed().subscribe(result => { if (result) this.loadUsers(); });
@@ -83,7 +83,7 @@ export class UserListComponent implements OnInit {
 
   openInviteDialog(): void {
     const ref = this.dialog.open(InviteUserDialogComponent, {
-      data: { companies: this.companies, pendingUsers: this.users.filter(user => user.status === 'Pending') },
+      data: { tenants: this.tenants, pendingUsers: this.users.filter(user => user.status === 'Pending') },
       width: '540px',
     });
     ref.afterClosed().subscribe(result => {
@@ -97,7 +97,7 @@ export class UserListComponent implements OnInit {
     this.admin.getUser(user.id).subscribe({
       next: detail => {
         const ref = this.dialog.open(UserDialogComponent, {
-          data: { user: detail, mode: 'superadmin', companies: this.companies },
+          data: { user: detail, mode: 'superadmin', tenants: this.tenants },
           width: '540px',
         });
         ref.afterClosed().subscribe(result => { if (result) this.loadUsers(); });

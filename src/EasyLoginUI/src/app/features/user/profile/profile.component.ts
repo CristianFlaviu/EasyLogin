@@ -22,8 +22,8 @@ import { UserProfile } from '../../../core/models/user.model';
             <p><strong>First name:</strong> {{ profile.firstName }}</p>
             <p><strong>Last name:</strong> {{ profile.lastName }}</p>
             <p><strong>Email:</strong> {{ profile.email }}</p>
-            @if (profile.companyName) {
-              <p><strong>Company:</strong> {{ profile.companyName }}</p>
+            @if (profile.tenantName) {
+              <p><strong>Tenant:</strong> {{ profile.tenantName }}</p>
             }
             <p><strong>System roles:</strong></p>
             <mat-chip-set>
@@ -34,10 +34,10 @@ import { UserProfile } from '../../../core/models/user.model';
                 <span class="muted">None</span>
               }
             </mat-chip-set>
-            @if (profile.companyRoles.length > 0) {
-              <p style="margin-top:12px"><strong>Company roles:</strong></p>
+            @if (profile.tenantRoles.length > 0) {
+              <p style="margin-top:12px"><strong>Tenant roles:</strong></p>
               <mat-chip-set>
-                @for (role of profile.companyRoles; track role) {
+                @for (role of profile.tenantRoles; track role) {
                   <mat-chip>{{ role }}</mat-chip>
                 }
               </mat-chip-set>

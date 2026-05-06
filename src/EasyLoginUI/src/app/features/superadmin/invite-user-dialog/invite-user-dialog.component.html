@@ -32,11 +32,11 @@
     </mat-form-field>
 
     <mat-form-field class="full-width">
-      <mat-label>Company</mat-label>
-      <mat-select formControlName="companyId">
-        <mat-option [value]="null">No company</mat-option>
-        @for (company of companies; track company.id) {
-          <mat-option [value]="company.id">{{ company.name }}</mat-option>
+      <mat-label>Tenant</mat-label>
+      <mat-select formControlName="tenantId">
+        <mat-option [value]="null">No tenant</mat-option>
+        @for (tenant of tenants; track tenant.id) {
+          <mat-option [value]="tenant.id">{{ tenant.name }}</mat-option>
         }
       </mat-select>
     </mat-form-field>

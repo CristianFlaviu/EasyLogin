@@ -5,7 +5,7 @@ import {
   PaginatedList, UserListItem, UserDetail, RoleItem,
   AdminCreateUserRequest, UpdateUserRequest, CreateRoleRequest, InviteUserRequest,
 } from '../models/user.model';
-import { CompanyItem, CompanyRoleItem, CreateCompanyRequest, UpdateCompanyRequest } from '../models/company.model';
+import { TenantItem, TenantRoleItem, CreateTenantRequest, UpdateTenantRequest } from '../models/tenant.model';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -55,35 +55,35 @@ export class AdminService {
     return this.api.delete<void>(`/superadmin/roles/${id}`);
   }
 
-  // ── Companies ─────────────────────────────────────────────────────────────
+  // ── Tenants ─────────────────────────────────────────────────────────────
 
-  getCompanies(): Observable<CompanyItem[]> {
-    return this.api.get<CompanyItem[]>('/superadmin/companies');
+  getTenants(): Observable<TenantItem[]> {
+    return this.api.get<TenantItem[]>('/superadmin/tenants');
   }
 
-  getCompany(id: string): Observable<CompanyItem> {
-    return this.api.get<CompanyItem>(`/superadmin/companies/${id}`);
+  getTenant(id: string): Observable<TenantItem> {
+    return this.api.get<TenantItem>(`/superadmin/tenants/${id}`);
   }
 
-  createCompany(request: CreateCompanyRequest): Observable<CompanyItem> {
-    return this.api.post<CompanyItem>('/superadmin/companies', request);
+  createTenant(request: CreateTenantRequest): Observable<TenantItem> {
+    return this.api.post<TenantItem>('/superadmin/tenants', request);
   }
 
-  updateCompany(id: string, request: UpdateCompanyRequest): Observable<CompanyItem> {
-    return this.api.put<CompanyItem>(`/superadmin/companies/${id}`, request);
+  updateTenant(id: string, request: UpdateTenantRequest): Observable<TenantItem> {
+    return this.api.put<TenantItem>(`/superadmin/tenants/${id}`, request);
   }
 
-  deleteCompany(id: string): Observable<void> {
-    return this.api.delete<void>(`/superadmin/companies/${id}`);
+  deleteTenant(id: string): Observable<void> {
+    return this.api.delete<void>(`/superadmin/tenants/${id}`);
   }
 
-  getCompanyUsers(id: string, pageNumber: number, pageSize: number): Observable<PaginatedList<UserListItem>> {
+  getTenantUsers(id: string, pageNumber: number, pageSize: number): Observable<PaginatedList<UserListItem>> {
     return this.api.get<PaginatedList<UserListItem>>(
-      `/superadmin/companies/${id}/users?pageNumber=${pageNumber}&pageSize=${pageSize}`
+      `/superadmin/tenants/${id}/users?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
   }
 
-  getCompanyRoles(id: string): Observable<CompanyRoleItem[]> {
-    return this.api.get<CompanyRoleItem[]>(`/superadmin/companies/${id}/roles`);
+  getTenantRoles(id: string): Observable<TenantRoleItem[]> {
+    return this.api.get<TenantRoleItem[]>(`/superadmin/tenants/${id}/roles`);
   }
 }

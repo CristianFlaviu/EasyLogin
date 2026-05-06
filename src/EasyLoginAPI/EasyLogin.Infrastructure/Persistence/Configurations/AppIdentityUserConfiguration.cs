@@ -21,10 +21,10 @@ public class AppIdentityUserConfiguration : IEntityTypeConfiguration<AppIdentity
         builder.HasIndex(u => u.RefreshTokenHash)
             .HasFilter("[RefreshTokenHash] IS NOT NULL");
 
-        builder.Property(u => u.CompanyId);
-        builder.HasOne<EasyLogin.Domain.Entities.Company>()
+        builder.Property(u => u.TenantId);
+        builder.HasOne<EasyLogin.Domain.Entities.Tenant>()
             .WithMany()
-            .HasForeignKey(u => u.CompanyId)
+            .HasForeignKey(u => u.TenantId)
             .OnDelete(DeleteBehavior.SetNull)
             .IsRequired(false);
     }

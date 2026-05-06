@@ -5,7 +5,7 @@ using MediatR;
 
 namespace EasyLogin.Application.Auth.Queries;
 
-public record GetAllUsersQuery(int PageNumber, int PageSize, Guid? CompanyId = null)
+public record GetAllUsersQuery(int PageNumber, int PageSize, Guid? TenantId = null)
     : IRequest<PaginatedList<UserListItemResponse>>;
 
 public class GetAllUsersQueryHandler(IUserRepository userRepository)
@@ -16,6 +16,6 @@ public class GetAllUsersQueryHandler(IUserRepository userRepository)
     public async Task<PaginatedList<UserListItemResponse>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
     {
         var pageSize = Math.Min(request.PageSize, MaxPageSize);
-        return await userRepository.GetPagedUsersAsync(request.PageNumber, pageSize, request.CompanyId);
+        return await userRepository.GetPagedUsersAsync(request.PageNumber, pageSize, request.TenantId);
     }
 }

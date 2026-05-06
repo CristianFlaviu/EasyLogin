@@ -9,6 +9,6 @@ public class ApplicationUser : BaseEntity<string>
     public bool IsActive => Status == UserStatus.Active;
     public string? RefreshTokenHash { get; set; }
     public DateTimeOffset? RefreshTokenExpiry { get; set; }
-    public Guid? CompanyId { get; set; }
-    public string? CompanyName { get; set; }
+    public Guid? TenantId { get; set; }
+    public string? TenantName { get; set; }
 }

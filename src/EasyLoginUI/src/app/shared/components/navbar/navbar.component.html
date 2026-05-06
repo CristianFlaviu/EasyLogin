@@ -14,8 +14,8 @@
   </a>
 
   <!-- SuperAdmin nav -->
-  <a mat-button routerLink="/superadmin/companies" routerLinkActive="active-link" *appHasRole="'SuperAdmin'">
-    Companies
+  <a mat-button routerLink="/superadmin/tenants" routerLinkActive="active-link" *appHasRole="'SuperAdmin'">
+    Tenants
   </a>
   <a mat-button routerLink="/superadmin/users" routerLinkActive="active-link" *appHasRole="'SuperAdmin'">
     Users
@@ -24,11 +24,11 @@
     System Roles
   </a>
 
-  <!-- CompanyAdmin nav -->
-  <a mat-button routerLink="/company/users" routerLinkActive="active-link" *appHasRole="'CompanyAdmin'">
+  <!-- TenantAdmin nav -->
+  <a mat-button routerLink="/tenant/users" routerLinkActive="active-link" *appHasRole="'TenantAdmin'">
     My Users
   </a>
-  <a mat-button routerLink="/company/roles" routerLinkActive="active-link" *appHasRole="'CompanyAdmin'">
+  <a mat-button routerLink="/tenant/roles" routerLinkActive="active-link" *appHasRole="'TenantAdmin'">
     My Roles
   </a>
 

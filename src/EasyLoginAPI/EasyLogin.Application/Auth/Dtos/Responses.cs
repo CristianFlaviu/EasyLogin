@@ -4,21 +4,21 @@ public record AuthResponse(string AccessToken, string RefreshToken, int ExpiresI
 
 public record UserProfileResponse(
     string Id, string FirstName, string LastName, string Email,
-    Guid? CompanyId, string? CompanyName,
-    IList<string> Roles, IList<string> CompanyRoles);
+    Guid? TenantId, string? TenantName,
+    IList<string> Roles, IList<string> TenantRoles);
 
 public record UserListItemResponse(
     string Id, string FirstName, string LastName, string Email,
     bool IsActive, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt,
-    Guid? CompanyId, string? CompanyName,
-    IList<string> Roles, IList<string> CompanyRoles,
+    Guid? TenantId, string? TenantName,
+    IList<string> Roles, IList<string> TenantRoles,
     string Status);
 
 public record UserDetailResponse(
     string Id, string FirstName, string LastName, string Email,
     bool IsActive, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt,
-    Guid? CompanyId, string? CompanyName,
-    IList<string> Roles, IList<string> CompanyRoles,
+    Guid? TenantId, string? TenantName,
+    IList<string> Roles, IList<string> TenantRoles,
     string Status);
 
 public record InviteValidationResponse(string Email, string FirstName, string LastName);

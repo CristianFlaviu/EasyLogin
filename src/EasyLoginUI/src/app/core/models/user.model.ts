@@ -3,10 +3,10 @@ export interface UserProfile {
   email: string;
   firstName: string;
   lastName: string;
-  companyId: string | null;
-  companyName: string | null;
+  tenantId: string | null;
+  tenantName: string | null;
   roles: string[];
-  companyRoles: string[];
+  tenantRoles: string[];
 }
 
 export interface UserListItem {
@@ -17,10 +17,10 @@ export interface UserListItem {
   isActive: boolean;
   createdAt: string;
   updatedAt: string | null;
-  companyId: string | null;
-  companyName: string | null;
+  tenantId: string | null;
+  tenantName: string | null;
   roles: string[];
-  companyRoles: string[];
+  tenantRoles: string[];
   status: string;
 }
 
@@ -32,10 +32,10 @@ export interface UserDetail {
   isActive: boolean;
   createdAt: string;
   updatedAt: string | null;
-  companyId: string | null;
-  companyName: string | null;
+  tenantId: string | null;
+  tenantName: string | null;
   roles: string[];
-  companyRoles: string[];
+  tenantRoles: string[];
   status: string;
 }
 
@@ -63,7 +63,7 @@ export interface AdminCreateUserRequest {
   email: string;
   password: string;
   systemRoles: string[];
-  companyId: string | null;
+  tenantId: string | null;
 }
 
 export interface InviteUserRequest {
@@ -71,7 +71,7 @@ export interface InviteUserRequest {
   lastName: string;
   email: string;
   systemRoles: string[];
-  companyId: string | null;
+  tenantId: string | null;
 }
 
 export interface UpdateUserRequest {

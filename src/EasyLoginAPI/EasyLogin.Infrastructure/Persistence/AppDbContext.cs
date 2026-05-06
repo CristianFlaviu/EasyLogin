@@ -8,9 +8,9 @@ namespace EasyLogin.Infrastructure.Persistence;
 public class AppDbContext(DbContextOptions<AppDbContext> options)
     : IdentityDbContext<AppIdentityUser, AppIdentityRole, string>(options)
 {
-    public DbSet<Company> Companies => Set<Company>();
-    public DbSet<CompanyRole> CompanyRoles => Set<CompanyRole>();
-    public DbSet<UserCompanyRole> UserCompanyRoles => Set<UserCompanyRole>();
+    public DbSet<Tenant> Tenants => Set<Tenant>();
+    public DbSet<TenantRole> TenantRoles => Set<TenantRole>();
+    public DbSet<UserTenantRole> UserTenantRoles => Set<UserTenantRole>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<InviteToken> InviteTokens => Set<InviteToken>();
 
