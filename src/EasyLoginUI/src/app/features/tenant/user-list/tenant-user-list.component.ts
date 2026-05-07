@@ -174,11 +174,11 @@ export class TenantUserListComponent implements OnInit {
       case 'Expired':
         return 'chip-expired';
       default:
-        return user.isActive ? 'chip-active' : 'chip-expired';
+        return 'chip-expired';
     }
   }
 
   statusText(user: UserListItem): string {
-    return user.status || (user.isActive ? 'Active' : 'Suspended');
+    return user.status;
   }
 }

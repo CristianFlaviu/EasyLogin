@@ -1,6 +1,7 @@
 using EasyLogin.Application.Auth.Dtos;
 using EasyLogin.Application.Common;
 using EasyLogin.Domain.Entities;
+using EasyLogin.Domain.Enums;
 
 namespace EasyLogin.Application.Interfaces;
 
@@ -26,6 +27,6 @@ public interface IUserRepository
     Task<string> GenerateEmailConfirmationTokenAsync(string email);
     Task ConfirmEmailAsync(string email, string token);
     Task<PaginatedList<UserListItemResponse>> GetPagedUsersAsync(int pageNumber, int pageSize, Guid? tenantId = null);
-    Task UpdateUserAsync(string userId, string firstName, string lastName, string email, bool isActive, IList<string>? systemRoles, string? newPassword, Guid? requiredTenantId = null);
+    Task UpdateUserAsync(string userId, string firstName, string lastName, string email, UserStatus status, IList<string>? systemRoles, string? newPassword, Guid? requiredTenantId = null);
     Task DeleteUserAsync(string userId, Guid? requiredTenantId = null);
 }

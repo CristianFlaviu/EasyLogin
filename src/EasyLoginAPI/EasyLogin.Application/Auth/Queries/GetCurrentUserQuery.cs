@@ -21,7 +21,7 @@ public class GetCurrentUserQueryHandler(IUserRepository userRepository, ICurrent
             user.TenantId, user.TenantName,
             systemRoles, tenantRoles,
             user.TwoFactorEnabled,
-            user.TwoFactorMethod?.ToString(),
+            user.TwoFactorMethod?.ToDto(),
             user.EmailConfirmed);
     }
 }

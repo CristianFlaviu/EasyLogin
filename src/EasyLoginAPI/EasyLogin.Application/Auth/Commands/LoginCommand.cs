@@ -2,6 +2,7 @@ using EasyLogin.Application.Auth.Dtos;
 using EasyLogin.Application.Common;
 using EasyLogin.Application.Interfaces;
 using EasyLogin.Domain.Entities;
+using EasyLogin.Domain.Enums;
 using MediatR;
 
 namespace EasyLogin.Application.Auth.Commands;
@@ -69,7 +70,7 @@ public class LoginCommandHandler(
                 challengeToken.ExpiresIn,
                 RequiresTwoFactor: true,
                 TwoFactorToken: challengeToken.Token,
-                TwoFactorMethod: method.ToString());
+                TwoFactorMethod: method.ToDto());
         }
 
         AccessTokenResult accessToken = tokenService.GenerateAccessToken(user, roles);

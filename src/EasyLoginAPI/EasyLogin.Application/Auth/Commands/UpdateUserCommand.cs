@@ -2,13 +2,14 @@ using EasyLogin.Application.Auth.Dtos;
 using EasyLogin.Application.Common;
 using EasyLogin.Application.Interfaces;
 using EasyLogin.Domain.Entities;
+using EasyLogin.Domain.Enums;
 using MediatR;
 
 namespace EasyLogin.Application.Auth.Commands;
 
 public record UpdateUserCommand(
     string UserId, string FirstName, string LastName, string Email,
-    bool IsActive, IList<string> SystemRoles, string? NewPassword,
+    UserStatus Status, IList<string> SystemRoles, string? NewPassword,
     Guid? CallerTenantId = null)
     : IRequest<UserDetailResponse>;
 
@@ -23,7 +24,7 @@ public class UpdateUserCommandHandler(IUserRepository userRepository, IAuditLogg
         {
             await userRepository.UpdateUserAsync(
                 request.UserId, request.FirstName, request.LastName,
-                request.Email, request.IsActive, request.SystemRoles,
+                request.Email, request.Status, request.SystemRoles,
                 request.NewPassword, request.CallerTenantId);
         }
         catch (Exception ex)
@@ -46,7 +47,7 @@ public class UpdateUserCommandHandler(IUserRepository userRepository, IAuditLogg
         AuditDiffBuilder.ForField("firstName", before.FirstName, user.FirstName, diff);
         AuditDiffBuilder.ForField("lastName", before.LastName, user.LastName, diff);
         AuditDiffBuilder.ForField("email", before.Email, user.Email, diff);
-        AuditDiffBuilder.ForField("isActive", before.IsActive, user.IsActive, diff);
+        AuditDiffBuilder.ForField("status", before.Status, user.Status, diff);
         AuditDiffBuilder.ForCollection("systemRoles", beforeSysRoles, systemRoles, diff);
         if (!string.IsNullOrWhiteSpace(request.NewPassword))
             diff["password"] = "changed";
@@ -63,8 +64,8 @@ public class UpdateUserCommandHandler(IUserRepository userRepository, IAuditLogg
 
         return new UserDetailResponse(
             user.Id, user.FirstName, user.LastName, user.Email,
-            user.IsActive, user.CreatedAt, user.UpdatedAt,
+            user.CreatedAt, user.UpdatedAt,
             user.TenantId, user.TenantName,
-            systemRoles, tenantRoles, user.Status.ToString());
+            systemRoles, tenantRoles, user.Status.ToDto());
     }
 }

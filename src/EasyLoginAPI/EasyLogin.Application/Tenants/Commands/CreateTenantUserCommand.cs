@@ -85,9 +85,9 @@ public class CreateTenantUserCommandHandler(
 
         return new UserDetailResponse(
             detail.Id, detail.FirstName, detail.LastName, detail.Email,
-            detail.IsActive, detail.CreatedAt, detail.UpdatedAt,
+            detail.CreatedAt, detail.UpdatedAt,
             detail.TenantId, detail.TenantName,
-            systemRoles, tenantRoles, detail.Status.ToString());
+            systemRoles, tenantRoles, detail.Status.ToDto());
     }
 
     private async Task ValidateAssignableRolesAsync(IList<Guid> tenantRoleIds, Guid tenantId)

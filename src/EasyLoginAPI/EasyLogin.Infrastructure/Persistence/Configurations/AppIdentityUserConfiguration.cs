@@ -1,5 +1,6 @@
 using EasyLogin.Infrastructure.Identity;
 using EasyLogin.Domain.Entities;
+using EasyLogin.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

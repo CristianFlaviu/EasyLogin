@@ -1,6 +1,7 @@
 using EasyLogin.Application.Common;
 using EasyLogin.Application.Interfaces;
 using EasyLogin.Domain.Entities;
+using EasyLogin.Domain.Enums;
 using MediatR;
 
 namespace EasyLogin.Application.Auth.Commands;

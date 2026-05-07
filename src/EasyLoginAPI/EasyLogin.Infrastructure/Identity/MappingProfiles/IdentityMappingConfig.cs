@@ -11,8 +11,7 @@ public class IdentityMappingConfig : IRegister
             .Map(dest => dest.Id, src => src.Id)
             .Map(dest => dest.Email, src => src.Email ?? string.Empty)
             .Map(dest => dest.Status, src => src.Status)
-            .Map(dest => dest.TenantId, src => src.TenantId)
-            .Ignore(dest => dest.IsActive);
+            .Map(dest => dest.TenantId, src => src.TenantId);
 
         config.NewConfig<ApplicationUser, AppIdentityUser>()
             .Map(dest => dest.Id, src => src.Id)

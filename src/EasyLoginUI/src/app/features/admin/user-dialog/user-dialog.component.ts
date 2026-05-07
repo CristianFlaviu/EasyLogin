@@ -6,12 +6,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AdminService } from '../../../core/services/admin.service';
 import { TenantAdminService } from '../../../core/services/tenant-admin.service';
-import { RoleItem, UserDetail } from '../../../core/models/user.model';
+import { RoleItem, UserDetail, UserStatus } from '../../../core/models/user.model';
 import { TenantItem, TenantRoleItem } from '../../../core/models/tenant.model';
 
 export interface UserDialogData {
@@ -28,7 +27,7 @@ export interface UserDialogData {
     ReactiveFormsModule,
     MatDialogModule, MatFormFieldModule, MatInputModule,
     MatSelectModule, MatButtonModule, MatIconModule,
-    MatSlideToggleModule, MatProgressSpinnerModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './user-dialog.component.html',
 })
@@ -45,6 +44,7 @@ export class UserDialogComponent implements OnInit {
   systemRoles: RoleItem[] = [];
   tenantRoles: TenantRoleItem[] = this.data.tenantRoles ?? [];
   tenants: TenantItem[] = this.data.tenants ?? [];
+  readonly statuses: UserStatus[] = ['Active', 'Pending', 'Suspended', 'Expired'];
 
   loading = false;
   hidePassword = true;
@@ -53,7 +53,7 @@ export class UserDialogComponent implements OnInit {
     firstName: new FormControl('', Validators.required),
     lastName: new FormControl('', Validators.required),
     email: new FormControl('', [Validators.required, Validators.email]),
-    isActive: new FormControl(true),
+    status: new FormControl<UserStatus>('Active', { nonNullable: true }),
     tenantId: new FormControl<string | null>(null),
     systemRoles: new FormControl<string[]>([]),
     tenantRoleIds: new FormControl<string[]>([]),
@@ -76,7 +76,7 @@ export class UserDialogComponent implements OnInit {
         firstName: u.firstName,
         lastName: u.lastName,
         email: u.email,
-        isActive: u.isActive,
+        status: u.status,
         tenantId: u.tenantId,
         systemRoles: u.roles,
         tenantRoleIds: selectedTenantRoleIds,
@@ -102,7 +102,7 @@ export class UserDialogComponent implements OnInit {
   submit(): void {
     if (this.form.invalid || this.passwordMismatch) return;
 
-    const { firstName, lastName, email, isActive, tenantId, systemRoles, tenantRoleIds, password } = this.form.value;
+    const { firstName, lastName, email, status, tenantId, systemRoles, tenantRoleIds, password } = this.form.value;
     this.loading = true;
 
     let obs;
@@ -113,7 +113,7 @@ export class UserDialogComponent implements OnInit {
             firstName: firstName!,
             lastName: lastName!,
             email: email!,
-            isActive: isActive!,
+            status: status!,
             systemRoles: systemRoles ?? [],
             newPassword: password || null,
           })
@@ -131,7 +131,7 @@ export class UserDialogComponent implements OnInit {
             firstName: firstName!,
             lastName: lastName!,
             email: email!,
-            isActive: isActive!,
+            status: status!,
             tenantRoleIds: tenantRoleIds ?? [],
             newPassword: password || null,
           })

@@ -2,6 +2,7 @@ using System.Text.Encodings.Web;
 using EasyLogin.Application.Auth.Dtos;
 using EasyLogin.Application.Interfaces;
 using EasyLogin.Domain.Entities;
+using EasyLogin.Domain.Enums;
 using EasyLogin.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 

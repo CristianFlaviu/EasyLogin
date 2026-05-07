@@ -1,3 +1,5 @@
+import { UserStatus } from './user.model';
+
 export interface TenantItem {
   id: string;
   name: string;
@@ -46,7 +48,7 @@ export interface UpdateTenantUserRequest {
   firstName: string;
   lastName: string;
   email: string;
-  isActive: boolean;
+  status: UserStatus;
   tenantRoleIds: string[];
   newPassword: string | null;
 }

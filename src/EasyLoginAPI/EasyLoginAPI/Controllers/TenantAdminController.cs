@@ -89,7 +89,7 @@ public class TenantAdminController(IMediator mediator, ICurrentUserService curre
     {
         var result = await mediator.Send(new UpdateTenantUserCommand(
             id, request.FirstName, request.LastName, request.Email,
-            request.IsActive, request.TenantRoleIds, request.NewPassword,
+            request.Status.ToDomain(), request.TenantRoleIds, request.NewPassword,
             CallerTenantId));
         return Ok(result);
     }

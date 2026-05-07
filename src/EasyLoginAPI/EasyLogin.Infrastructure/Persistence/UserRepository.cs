@@ -2,6 +2,7 @@ using EasyLogin.Application.Auth.Dtos;
 using EasyLogin.Application.Common;
 using EasyLogin.Application.Interfaces;
 using EasyLogin.Domain.Entities;
+using EasyLogin.Domain.Enums;
 using EasyLogin.Infrastructure.Identity;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
@@ -335,10 +336,10 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
             tenantRolesByUser.TryGetValue(x.u.Id, out var cRoles);
             items.Add(new UserListItemResponse(
                 x.u.Id, x.u.FirstName, x.u.LastName, x.u.Email ?? string.Empty,
-                x.u.IsActive, x.u.CreatedAt, x.u.UpdatedAt,
+                x.u.CreatedAt, x.u.UpdatedAt,
                 x.u.TenantId, x.TenantName,
                 systemRoles, cRoles ?? [],
-                x.u.Status.ToString()));
+                x.u.Status.ToDto()));
         }
 
         return new PaginatedList<UserListItemResponse>(items, total, pageNumber, pageSize);
@@ -346,7 +347,7 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
 
     public async Task UpdateUserAsync(
         string userId, string firstName, string lastName, string email,
-        bool isActive, IList<string>? systemRoles, string? newPassword,
+        UserStatus status, IList<string>? systemRoles, string? newPassword,
         Guid? requiredTenantId = null)
     {
         var user = await userManager.FindByIdAsync(userId)
@@ -372,7 +373,7 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
 
         user.FirstName = firstName;
         user.LastName = lastName;
-        user.Status = isActive ? UserStatus.Active : UserStatus.Suspended;
+        user.Status = status;
         user.UpdatedAt = DateTimeOffset.UtcNow;
 
         var updateResult = await userManager.UpdateAsync(user);

@@ -1,3 +1,5 @@
+export type UserStatus = 'Active' | 'Pending' | 'Suspended' | 'Expired';
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -44,14 +46,13 @@ export interface UserListItem {
   email: string;
   firstName: string;
   lastName: string;
-  isActive: boolean;
   createdAt: string;
   updatedAt: string | null;
   tenantId: string | null;
   tenantName: string | null;
   roles: string[];
   tenantRoles: string[];
-  status: string;
+  status: UserStatus;
 }
 
 export interface UserDetail {
@@ -59,14 +60,13 @@ export interface UserDetail {
   email: string;
   firstName: string;
   lastName: string;
-  isActive: boolean;
   createdAt: string;
   updatedAt: string | null;
   tenantId: string | null;
   tenantName: string | null;
   roles: string[];
   tenantRoles: string[];
-  status: string;
+  status: UserStatus;
 }
 
 export interface RoleItem {
@@ -108,7 +108,7 @@ export interface UpdateUserRequest {
   firstName: string;
   lastName: string;
   email: string;
-  isActive: boolean;
+  status: UserStatus;
   systemRoles: string[];
   newPassword: string | null;
 }

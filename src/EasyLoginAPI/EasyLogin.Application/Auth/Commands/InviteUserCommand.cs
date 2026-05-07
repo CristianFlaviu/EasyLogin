@@ -2,6 +2,7 @@ using EasyLogin.Application.Auth.Dtos;
 using EasyLogin.Application.Common;
 using EasyLogin.Application.Interfaces;
 using EasyLogin.Domain.Entities;
+using EasyLogin.Domain.Enums;
 using MediatR;
 
 namespace EasyLogin.Application.Auth.Commands;
@@ -90,8 +91,8 @@ public class InviteUserCommandHandler(
 
         return new UserDetailResponse(
             detail.Id, detail.FirstName, detail.LastName, detail.Email,
-            detail.IsActive, detail.CreatedAt, detail.UpdatedAt,
+            detail.CreatedAt, detail.UpdatedAt,
             detail.TenantId, detail.TenantName,
-            systemRoles, tenantRoles, detail.Status.ToString());
+            systemRoles, tenantRoles, detail.Status.ToDto());
     }
 }

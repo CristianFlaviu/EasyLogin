@@ -71,7 +71,7 @@ public class SuperAdminController(IMediator mediator) : ControllerBase
     {
         var result = await mediator.Send(new UpdateUserCommand(
             id, request.FirstName, request.LastName, request.Email,
-            request.IsActive, request.SystemRoles, request.NewPassword));
+            request.Status.ToDomain(), request.SystemRoles, request.NewPassword));
         return Ok(result);
     }
 

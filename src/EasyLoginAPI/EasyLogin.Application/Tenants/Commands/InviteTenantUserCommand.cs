@@ -3,6 +3,7 @@ using EasyLogin.Application.Common;
 using EasyLogin.Application.Interfaces;
 using EasyLogin.Application.Tenants.Dtos;
 using EasyLogin.Domain.Entities;
+using EasyLogin.Domain.Enums;
 using MediatR;
 
 namespace EasyLogin.Application.Tenants.Commands;
@@ -96,9 +97,9 @@ public class InviteTenantUserCommandHandler(
 
         return new UserDetailResponse(
             detail.Id, detail.FirstName, detail.LastName, detail.Email,
-            detail.IsActive, detail.CreatedAt, detail.UpdatedAt,
+            detail.CreatedAt, detail.UpdatedAt,
             detail.TenantId, detail.TenantName,
-            systemRoles, assignedRoles, detail.Status.ToString());
+            systemRoles, assignedRoles, detail.Status.ToDto());
     }
 
     private static void EnsureAssignableByTenantAdmin(string roleName)

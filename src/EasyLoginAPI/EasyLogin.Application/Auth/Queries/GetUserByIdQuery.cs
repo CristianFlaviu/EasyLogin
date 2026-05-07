@@ -14,8 +14,8 @@ public class GetUserByIdQueryHandler(IUserRepository userRepository)
         var (user, systemRoles, tenantRoles) = await userRepository.GetByIdWithRolesAsync(request.UserId, request.RequiredTenantId);
         return new UserDetailResponse(
             user.Id, user.FirstName, user.LastName, user.Email,
-            user.IsActive, user.CreatedAt, user.UpdatedAt,
+            user.CreatedAt, user.UpdatedAt,
             user.TenantId, user.TenantName,
-            systemRoles, tenantRoles, user.Status.ToString());
+            systemRoles, tenantRoles, user.Status.ToDto());
     }
 }

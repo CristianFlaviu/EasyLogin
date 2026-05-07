@@ -1,6 +1,7 @@
 using EasyLogin.Application.Common;
 using EasyLogin.Application.Interfaces;
 using EasyLogin.Domain.Entities;
+using EasyLogin.Domain.Enums;
 using MediatR;
 
 namespace EasyLogin.Application.Tenants.Commands;
@@ -23,7 +24,7 @@ public class SuspendTenantUserCommandHandler(
 
         await userRepository.UpdateUserAsync(
             user.Id, user.FirstName, user.LastName, user.Email,
-            false, null, null, request.CallerTenantId);
+            UserStatus.Suspended, null, null, request.CallerTenantId);
 
         await auditLogger.WriteAsync(new AuditEntry
         {

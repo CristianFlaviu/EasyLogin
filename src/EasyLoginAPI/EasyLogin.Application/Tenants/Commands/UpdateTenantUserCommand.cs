@@ -2,13 +2,14 @@ using EasyLogin.Application.Auth.Dtos;
 using EasyLogin.Application.Common;
 using EasyLogin.Application.Interfaces;
 using EasyLogin.Domain.Entities;
+using EasyLogin.Domain.Enums;
 using MediatR;
 
 namespace EasyLogin.Application.Tenants.Commands;
 
 public record UpdateTenantUserCommand(
     string UserId, string FirstName, string LastName, string Email,
-    bool IsActive, IList<Guid> TenantRoleIds, string? NewPassword,
+    UserStatus Status, IList<Guid> TenantRoleIds, string? NewPassword,
     Guid CallerTenantId)
     : IRequest<UserDetailResponse>;
 
@@ -30,7 +31,7 @@ public class UpdateTenantUserCommandHandler(
         {
             await userRepository.UpdateUserAsync(
                 request.UserId, request.FirstName, request.LastName,
-                request.Email, request.IsActive, null,
+                request.Email, request.Status, null,
                 request.NewPassword, request.CallerTenantId);
 
             await tenantRoleRepository.UpdateUserRolesAsync(
@@ -56,7 +57,7 @@ public class UpdateTenantUserCommandHandler(
         AuditDiffBuilder.ForField("firstName", before.FirstName, user.FirstName, diff);
         AuditDiffBuilder.ForField("lastName", before.LastName, user.LastName, diff);
         AuditDiffBuilder.ForField("email", before.Email, user.Email, diff);
-        AuditDiffBuilder.ForField("isActive", before.IsActive, user.IsActive, diff);
+        AuditDiffBuilder.ForField("status", before.Status, user.Status, diff);
         AuditDiffBuilder.ForCollection("tenantRoles", beforeTenantRoles, tenantRoles, diff);
         if (!string.IsNullOrWhiteSpace(request.NewPassword))
             diff["password"] = "changed";
@@ -73,9 +74,9 @@ public class UpdateTenantUserCommandHandler(
 
         return new UserDetailResponse(
             user.Id, user.FirstName, user.LastName, user.Email,
-            user.IsActive, user.CreatedAt, user.UpdatedAt,
+            user.CreatedAt, user.UpdatedAt,
             user.TenantId, user.TenantName,
-            systemRoles, tenantRoles, user.Status.ToString());
+            systemRoles, tenantRoles, user.Status.ToDto());
     }
 
     private async Task ValidateAssignableRolesAsync(IList<Guid> tenantRoleIds, Guid tenantId)

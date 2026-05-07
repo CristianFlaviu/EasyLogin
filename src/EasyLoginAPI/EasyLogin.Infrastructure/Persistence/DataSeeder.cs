@@ -1,5 +1,6 @@
 using EasyLogin.Infrastructure.Identity;
 using EasyLogin.Domain.Entities;
+using EasyLogin.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

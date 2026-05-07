@@ -1,4 +1,4 @@
-namespace EasyLogin.Domain.Entities;
+namespace EasyLogin.Domain.Enums;
 
 public enum UserStatus
 {

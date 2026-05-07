@@ -62,7 +62,14 @@
     }
 
     @if (isEdit) {
-      <mat-slide-toggle formControlName="isActive" color="primary">Active</mat-slide-toggle>
+      <mat-form-field class="full-width">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          @for (status of statuses; track status) {
+            <mat-option [value]="status">{{ status }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
     }
 
     <mat-form-field class="full-width" style="margin-top: 16px">

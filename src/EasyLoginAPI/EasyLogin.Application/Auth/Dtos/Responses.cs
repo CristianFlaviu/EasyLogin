@@ -1,3 +1,5 @@
+using EasyLogin.Application.Auth.Dtos.Enums;
+
 namespace EasyLogin.Application.Auth.Dtos;
 
 public record AuthResponse(
@@ -6,7 +8,7 @@ public record AuthResponse(
     int ExpiresIn,
     bool RequiresTwoFactor = false,
     string? TwoFactorToken = null,
-    string? TwoFactorMethod = null);
+    TwoFactorMethodDto? TwoFactorMethod = null);
 
 public record TwoFactorSetupResponse(string OtpAuthUri, string SharedSecret);
 
@@ -36,22 +38,22 @@ public record UserProfileResponse(
     Guid? TenantId, string? TenantName,
     IList<string> Roles, IList<string> TenantRoles,
     bool TwoFactorEnabled,
-    string? TwoFactorMethod,
+    TwoFactorMethodDto? TwoFactorMethod,
     bool EmailConfirmed);
 
 public record UserListItemResponse(
     string Id, string FirstName, string LastName, string Email,
-    bool IsActive, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt,
+    DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt,
     Guid? TenantId, string? TenantName,
     IList<string> Roles, IList<string> TenantRoles,
-    string Status);
+    UserStatusDto Status);
 
 public record UserDetailResponse(
     string Id, string FirstName, string LastName, string Email,
-    bool IsActive, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt,
+    DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt,
     Guid? TenantId, string? TenantName,
     IList<string> Roles, IList<string> TenantRoles,
-    string Status);
+    UserStatusDto Status);
 
 public record InviteValidationResponse(string Email, string FirstName, string LastName);
 

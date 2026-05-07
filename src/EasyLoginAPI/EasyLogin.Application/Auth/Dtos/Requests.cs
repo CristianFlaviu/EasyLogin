@@ -1,3 +1,5 @@
+using EasyLogin.Application.Auth.Dtos.Enums;
+
 namespace EasyLogin.Application.Auth.Dtos;
 
 public record LoginRequest(string Email, string Password);
@@ -31,9 +33,9 @@ public record InviteUserRequest(string FirstName, string LastName, string Email,
 public record CreateTenantUserRequest(string FirstName, string LastName, string Email, string Password, List<Guid> TenantRoleIds);
 public record InviteTenantUserRequest(string Email, Guid TenantRoleId);
 
-public record UpdateUserRequest(string FirstName, string LastName, string Email, bool IsActive, List<string> SystemRoles, string? NewPassword);
+public record UpdateUserRequest(string FirstName, string LastName, string Email, UserStatusDto Status, List<string> SystemRoles, string? NewPassword);
 
-public record UpdateTenantUserRequest(string FirstName, string LastName, string Email, bool IsActive, List<Guid> TenantRoleIds, string? NewPassword);
+public record UpdateTenantUserRequest(string FirstName, string LastName, string Email, UserStatusDto Status, List<Guid> TenantRoleIds, string? NewPassword);
 
 public record AcceptInviteRequest(string Token, string Password, string ConfirmPassword);
 
