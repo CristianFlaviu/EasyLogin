@@ -9,7 +9,7 @@ import {
   AcceptInviteRequest, InviteValidationResponse,
   VerifyTwoFactorRequest, TwoFactorSetupResponse,
   EnableTwoFactorRequest, ConfirmTwoFactorRequest, SensitiveTwoFactorRequest,
-  RegisterRequest, RegisterResponse, ConfirmEmailRequest, ResendEmailConfirmationRequest,
+  ConfirmEmailRequest, ResendEmailConfirmationRequest,
 } from '../models/auth.model';
 import { UserProfile } from '../models/user.model';
 
@@ -178,10 +178,6 @@ export class AuthService {
 
   acceptInvite(req: AcceptInviteRequest): Observable<void> {
     return this.api.post<void>('/auth/accept-invite', req);
-  }
-
-  register(req: RegisterRequest): Observable<RegisterResponse> {
-    return this.api.post<RegisterResponse>('/auth/register', req);
   }
 
   confirmEmail(req: ConfirmEmailRequest): Observable<void> {

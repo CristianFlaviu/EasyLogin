@@ -24,12 +24,6 @@ export const routes: Routes = [
     children: [{ path: '', pathMatch: 'full', loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) }],
   },
   {
-    path: 'register',
-    canActivate: [noAuthGuard],
-    loadComponent: () => import('./features/auth/auth-layout/auth-layout.component').then(m => m.AuthLayoutComponent),
-    children: [{ path: '', pathMatch: 'full', loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent) }],
-  },
-  {
     path: 'reset-password',
     loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
   },

@@ -12,14 +12,6 @@ namespace EasyLoginAPI.Controllers;
 [Route("api/auth")]
 public class AuthController(IMediator mediator, ICurrentUserService currentUserService) : ControllerBase
 {
-    [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
-    {
-        var command = new RegisterCommand(request.FirstName, request.LastName, request.Email, request.Password);
-        var result = await mediator.Send(command);
-        return StatusCode(201, result);
-    }
-
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {

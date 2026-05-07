@@ -34,7 +34,6 @@ EasyLoginAPI              → Controllers, GlobalExceptionHandler, Program.cs, S
 
 | Method | Route | Auth | Handler |
 |--------|-------|------|---------|
-| POST | `/api/auth/register` | None | `RegisterCommand` |
 | POST | `/api/auth/login` | None | `LoginCommand` |
 | POST | `/api/auth/forgot-password` | None | `ForgotPasswordCommand` |
 | POST | `/api/auth/reset-password` | None | `ResetPasswordCommand` |

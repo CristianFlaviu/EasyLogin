@@ -12,19 +12,6 @@ export interface LoginRequest {
   password: string;
 }
 
-export interface RegisterRequest {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
-
-export interface RegisterResponse {
-  message: string;
-  requiresEmailConfirmation: boolean;
-}
-
 export interface ForgotPasswordRequest {
   email: string;
 }

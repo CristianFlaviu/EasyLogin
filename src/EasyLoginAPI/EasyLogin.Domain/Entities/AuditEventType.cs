@@ -9,7 +9,6 @@ public static class AuditEventType
     public const string TwoFactorVerificationFailed = "TwoFactorVerificationFailed";
     public const string TwoFactorEnabled = "TwoFactorEnabled";
     public const string TwoFactorDisabled = "TwoFactorDisabled";
-    public const string Register = "Register";
     public const string EmailConfirmed = "EmailConfirmed";
     public const string EmailConfirmationSent = "EmailConfirmationSent";
     public const string RefreshToken = "RefreshToken";

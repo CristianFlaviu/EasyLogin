@@ -20,6 +20,12 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                     .GroupBy(e => e.PropertyName)
                     .ToDictionary(g => g.Key, g => g.Select(e => e.ErrorMessage).ToArray())
             }),
+            TwoFactorVerificationFailedException tfe => (tfe.IsLockedOut ? 423 : 400, new
+            {
+                code = tfe.IsLockedOut ? "TwoFactorLockedOut" : "TwoFactorVerificationFailed",
+                message = tfe.Message,
+                reason = tfe.Reason
+            }),
             UnauthorizedAccessException => (401, new { message = "Unauthorised" }),
             KeyNotFoundException => (404, new { message = "Not found" }),
             InviteTokenExpiredException => (410, new { code = "InviteExpired", message = exception.Message }),

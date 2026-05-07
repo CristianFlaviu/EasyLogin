@@ -22,12 +22,12 @@ public class DisableTwoFactorCommandHandler(
             throw new InvalidOperationException("Two-factor authentication is not enabled.");
 
         if (await twoFactorService.IsLockedOutAsync(user.Id))
-            throw new UnauthorizedAccessException();
+            throw new TwoFactorVerificationFailedException("LockedOut", isLockedOut: true);
 
         if (!await twoFactorService.CheckPasswordAsync(user.Id, request.Password))
         {
-            await RecordFailureAsync(user, "InvalidPassword", cancellationToken);
-            throw new UnauthorizedAccessException();
+            bool lockedOut = await RecordFailureAsync(user, "InvalidPassword", cancellationToken);
+            throw new TwoFactorVerificationFailedException("InvalidPassword", lockedOut);
         }
 
         TwoFactorMethod method = user.TwoFactorMethod ?? TwoFactorMethod.Authenticator;
@@ -37,8 +37,8 @@ public class DisableTwoFactorCommandHandler(
 
         if (!verified)
         {
-            await RecordFailureAsync(user, "InvalidTwoFactorCode", cancellationToken);
-            throw new UnauthorizedAccessException();
+            bool lockedOut = await RecordFailureAsync(user, "InvalidTwoFactorCode", cancellationToken);
+            throw new TwoFactorVerificationFailedException("InvalidTwoFactorCode", lockedOut);
         }
 
         await twoFactorService.SetTwoFactorEnabledAsync(user.Id, false);
@@ -65,10 +65,11 @@ public class DisableTwoFactorCommandHandler(
         }, cancellationToken);
     }
 
-    private async Task RecordFailureAsync(ApplicationUser user, string reason, CancellationToken cancellationToken)
+    private async Task<bool> RecordFailureAsync(ApplicationUser user, string reason, CancellationToken cancellationToken)
     {
         await twoFactorService.AccessFailedAsync(user.Id);
-        string failureReason = await twoFactorService.IsLockedOutAsync(user.Id) ? "LockedOut" : reason;
+        bool lockedOut = await twoFactorService.IsLockedOutAsync(user.Id);
+        string failureReason = lockedOut ? "LockedOut" : reason;
         await auditLogger.WriteAsync(new AuditEntry
         {
             EventType = AuditEventType.TwoFactorVerificationFailed,
@@ -77,5 +78,6 @@ public class DisableTwoFactorCommandHandler(
             ActorEmail = user.Email,
             FailureReason = failureReason
         }, cancellationToken);
+        return lockedOut;
     }
 }

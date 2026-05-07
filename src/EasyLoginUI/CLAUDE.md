@@ -19,7 +19,7 @@ src/app/
 │   ├── models/         → auth.model.ts, user.model.ts
 │   └── services/       → auth.service, api.service, admin.service, theme.service
 ├── features/
-│   ├── auth/           → login, register, forgot-password, reset-password + auth-layout
+│   ├── auth/           → login, forgot-password, reset-password + auth-layout
 │   ├── admin/          → user-list, user-dialog, role-list, role-dialog
 │   ├── dashboard/      → placeholder ("Coming soon")
 │   └── user/profile/   → current user profile view
@@ -44,7 +44,7 @@ src/app/
 
 | Path | Guard | Roles |
 |------|-------|-------|
-| `/login`, `/register`, `/forgot-password` | noAuthGuard | — |
+| `/login`, `/forgot-password` | noAuthGuard | — |
 | `/reset-password` | none | — |
 | `/dashboard`, `/profile` | authGuard | — |
 | `/admin/users`, `/admin/roles` | authGuard + roleGuard | Admin |

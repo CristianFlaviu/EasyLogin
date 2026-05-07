@@ -10,8 +10,6 @@ public record AuthResponse(
 
 public record TwoFactorSetupResponse(string OtpAuthUri, string SharedSecret);
 
-public record RegisterResponse(string Message, bool RequiresEmailConfirmation);
-
 public record OverviewResponse(int TotalUsers, int LoginsLast24Hours, int ActiveSessions);
 
 public record OverviewLoginResponse(

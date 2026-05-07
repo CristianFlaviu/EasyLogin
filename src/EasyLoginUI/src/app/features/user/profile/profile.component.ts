@@ -1,4 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -73,65 +74,102 @@ import { TwoFactorSetupResponse } from '../../../core/models/auth.model';
             <mat-card-header>
               <mat-icon mat-card-avatar>security</mat-icon>
               <mat-card-title>Security</mat-card-title>
-              <mat-card-subtitle>
-                <mat-chip-set>
-                  <mat-chip>{{ profile.twoFactorEnabled ? '2FA enabled' : '2FA disabled' }}</mat-chip>
-                  @if (profile.twoFactorMethod) {
-                    <mat-chip>{{ profile.twoFactorMethod }}</mat-chip>
-                  }
-                </mat-chip-set>
-              </mat-card-subtitle>
+              <mat-card-subtitle>Multi-factor authentication</mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
-              @if (!profile.twoFactorEnabled) {
-                <form [formGroup]="setupPasswordForm" (ngSubmit)="startTwoFactorSetup()" class="security-form">
-                  <mat-form-field appearance="outline">
-                    <mat-label>Current password</mat-label>
-                    <input matInput formControlName="password" type="password" autocomplete="current-password">
-                    @if (setupPasswordForm.get('password')?.errors?.['required']) {
-                      <mat-error>Password is required</mat-error>
-                    }
-                  </mat-form-field>
-                  <button mat-flat-button color="primary" type="submit"
-                          [disabled]="setupPasswordForm.invalid || actionLoading === 'enable'">
-                    @if (actionLoading === 'enable') {
-                      <mat-spinner diameter="18" />
-                    }
-                    <mat-icon [class.is-hidden]="actionLoading === 'enable'">qr_code_2</mat-icon>
-                    <span [class.is-hidden]="actionLoading === 'enable'">Set up authenticator</span>
-                  </button>
-                </form>
+              <div class="security-summary" [class.enabled]="profile.twoFactorEnabled">
+                <div class="security-state-icon">
+                  <mat-icon>{{ profile.twoFactorEnabled ? 'verified_user' : 'gpp_maybe' }}</mat-icon>
+                </div>
+                <div class="security-state-copy">
+                  <span>Two-factor authentication </span>
+                  <strong>{{ profile.twoFactorEnabled ? 'Enabled' : 'Disabled' }}</strong>
+                </div>
+                <mat-chip-set class="security-badges">
+                  <mat-chip>{{ profile.twoFactorEnabled ? 'Active' : 'Inactive' }}</mat-chip>
+                  <mat-chip>{{ twoFactorMethodLabel }}</mat-chip>
+                </mat-chip-set>
+              </div>
 
-                <form [formGroup]="emailPasswordForm" (ngSubmit)="enableEmailTwoFactor()" class="security-form">
-                  <mat-form-field appearance="outline">
-                    <mat-label>Current password</mat-label>
-                    <input matInput formControlName="password" type="password" autocomplete="current-password">
-                    @if (emailPasswordForm.get('password')?.errors?.['required']) {
-                      <mat-error>Password is required</mat-error>
-                    }
-                  </mat-form-field>
-                  <button mat-stroked-button color="primary" type="submit"
-                          [disabled]="emailPasswordForm.invalid || actionLoading === 'enableEmail' || !profile.emailConfirmed">
-                    @if (actionLoading === 'enableEmail') {
-                      <mat-spinner diameter="18" />
-                    }
-                    <mat-icon [class.is-hidden]="actionLoading === 'enableEmail'">mail</mat-icon>
-                    <span [class.is-hidden]="actionLoading === 'enableEmail'">Use email codes</span>
-                  </button>
-                </form>
+              @if (!profile.twoFactorEnabled) {
+                <div class="security-option-grid">
+                  <form [formGroup]="setupPasswordForm" (ngSubmit)="startTwoFactorSetup()" class="security-option primary-option">
+                    <div class="option-heading">
+                      <div class="option-icon"><mat-icon>qr_code_2</mat-icon></div>
+                      <div>
+                        <h2>Authenticator app</h2>
+                        <span>Recommended</span>
+                      </div>
+                    </div>
+                    <div class="option-controls">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Current password</mat-label>
+                        <input matInput formControlName="password" type="password" autocomplete="current-password">
+                        @if (setupPasswordForm.get('password')?.errors?.['required']) {
+                          <mat-error>Password is required</mat-error>
+                        }
+                      </mat-form-field>
+                      <button mat-flat-button color="primary" type="submit"
+                              [disabled]="setupPasswordForm.invalid || actionLoading === 'enable'">
+                        @if (actionLoading === 'enable') {
+                          <mat-spinner diameter="18" />
+                        }
+                        <mat-icon [class.is-hidden]="actionLoading === 'enable'">qr_code_scanner</mat-icon>
+                        <span [class.is-hidden]="actionLoading === 'enable'">Set up</span>
+                      </button>
+                    </div>
+                  </form>
+
+                  <form [formGroup]="emailPasswordForm" (ngSubmit)="enableEmailTwoFactor()" class="security-option">
+                    <div class="option-heading">
+                      <div class="option-icon"><mat-icon>mail_lock</mat-icon></div>
+                      <div>
+                        <h2>Email codes</h2>
+                        <span>{{ profile.emailConfirmed ? 'Available' : 'Email unconfirmed' }}</span>
+                      </div>
+                    </div>
+                    <div class="option-controls">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Current password</mat-label>
+                        <input matInput formControlName="password" type="password" autocomplete="current-password">
+                        @if (emailPasswordForm.get('password')?.errors?.['required']) {
+                          <mat-error>Password is required</mat-error>
+                        }
+                      </mat-form-field>
+                      <button mat-stroked-button color="primary" type="submit"
+                              [disabled]="emailPasswordForm.invalid || actionLoading === 'enableEmail' || !profile.emailConfirmed">
+                        @if (actionLoading === 'enableEmail') {
+                          <mat-spinner diameter="18" />
+                        }
+                        <mat-icon [class.is-hidden]="actionLoading === 'enableEmail'">mail</mat-icon>
+                        <span [class.is-hidden]="actionLoading === 'enableEmail'">Enable</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
 
                 @if (setup) {
-                  <div class="setup-grid">
-                    <div class="qr-box">
-                      @if (qrCodeDataUrl) {
-                        <img [src]="qrCodeDataUrl" alt="Authenticator QR code">
-                      }
+                  <div class="setup-panel">
+                    <div class="setup-preview">
+                      <div class="qr-box">
+                        @if (qrCodeDataUrl) {
+                          <img [src]="qrCodeDataUrl" alt="Authenticator QR code">
+                        }
+                      </div>
+                      <div>
+                        <span class="field-label">Manual secret</span>
+                        <code>{{ setup.sharedSecret }}</code>
+                      </div>
                     </div>
-                    <div class="setup-fields">
-                      <dl class="detail-list">
-                        <div><dt>Manual secret</dt><dd class="mono">{{ setup.sharedSecret }}</dd></div>
-                      </dl>
-                      <form [formGroup]="confirmForm" (ngSubmit)="confirmTwoFactor()" class="security-form compact">
+                    <form [formGroup]="confirmForm" (ngSubmit)="confirmTwoFactor()" class="confirm-panel">
+                      <div class="option-heading">
+                        <div class="option-icon success"><mat-icon>verified_user</mat-icon></div>
+                        <div>
+                          <h2>Confirm setup</h2>
+                          <span>Authenticator code</span>
+                        </div>
+                      </div>
+                      <div class="option-controls">
                         <mat-form-field appearance="outline">
                           <mat-label>Authenticator code</mat-label>
                           <input matInput formControlName="code" inputmode="numeric" autocomplete="one-time-code">
@@ -144,39 +182,62 @@ import { TwoFactorSetupResponse } from '../../../core/models/auth.model';
                           @if (actionLoading === 'confirm') {
                             <mat-spinner diameter="18" />
                           }
-                          <mat-icon [class.is-hidden]="actionLoading === 'confirm'">verified_user</mat-icon>
-                          <span [class.is-hidden]="actionLoading === 'confirm'">Enable 2FA</span>
+                          <mat-icon [class.is-hidden]="actionLoading === 'confirm'">check_circle</mat-icon>
+                          <span [class.is-hidden]="actionLoading === 'confirm'">Confirm</span>
                         </button>
-                      </form>
-                    </div>
+                      </div>
+                    </form>
                   </div>
                 }
               } @else {
-                @if (profile.twoFactorMethod === 'Email') {
-                  <div class="email-code-row">
-                    <button mat-stroked-button color="primary" type="button"
-                            [disabled]="actionLoading === 'sendEmailCode'"
-                            (click)="sendEmailCode()">
-                      @if (actionLoading === 'sendEmailCode') {
-                        <mat-spinner diameter="18" />
-                      }
-                      <mat-icon [class.is-hidden]="actionLoading === 'sendEmailCode'">mail</mat-icon>
-                      <span [class.is-hidden]="actionLoading === 'sendEmailCode'">Send email code</span>
-                    </button>
+                <div class="security-enabled-layout">
+                  <div class="active-method-panel">
+                    <div class="option-heading">
+                      <div class="option-icon success">
+                        <mat-icon>{{ profile.twoFactorMethod === 'Email' ? 'mail_lock' : 'app_registration' }}</mat-icon>
+                      </div>
+                      <div>
+                        <h2>{{ twoFactorMethodLabel }}</h2>
+                        <span>Verification method</span>
+                      </div>
+                    </div>
+                    @if (profile.twoFactorMethod === 'Email') {
+                      <button mat-stroked-button color="primary" type="button"
+                              [disabled]="actionLoading === 'sendEmailCode'"
+                              (click)="sendEmailCode()">
+                        @if (actionLoading === 'sendEmailCode') {
+                          <mat-spinner diameter="18" />
+                        }
+                        <mat-icon [class.is-hidden]="actionLoading === 'sendEmailCode'">mail</mat-icon>
+                        <span [class.is-hidden]="actionLoading === 'sendEmailCode'">Send code</span>
+                      </button>
+                    }
                   </div>
-                }
 
-                <div class="security-actions">
-                  <form [formGroup]="disableForm" (ngSubmit)="disableTwoFactor()" class="sensitive-form danger">
-                    <h2>Disable 2FA</h2>
-                    <mat-form-field appearance="outline">
-                      <mat-label>Current password</mat-label>
-                      <input matInput formControlName="password" type="password" autocomplete="current-password">
-                    </mat-form-field>
-                    <mat-form-field appearance="outline">
-                      <mat-label>{{ profile.twoFactorMethod === 'Email' ? 'Email code' : 'Authenticator code' }}</mat-label>
-                      <input matInput formControlName="code" inputmode="numeric" autocomplete="one-time-code">
-                    </mat-form-field>
+                  <form [formGroup]="disableForm" (ngSubmit)="disableTwoFactor()" class="danger-zone">
+                    <div class="danger-heading">
+                      <div class="option-icon danger"><mat-icon>lock_open</mat-icon></div>
+                      <div>
+                        <h2>Disable 2FA</h2>
+                        <span>{{ disableFailureCount > 0 ? disableAttemptsRemaining + ' attempts remaining' : 'Password and code required' }}</span>
+                      </div>
+                    </div>
+                    @if (disableFailureCount > 0) {
+                      <div class="retry-banner">
+                        <mat-icon>error</mat-icon>
+                        <span>Invalid password or code. {{ disableAttemptsRemaining }} attempt{{ disableAttemptsRemaining === 1 ? '' : 's' }} remaining.</span>
+                      </div>
+                    }
+                    <div class="sensitive-grid">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Current password</mat-label>
+                        <input matInput formControlName="password" type="password" autocomplete="current-password">
+                      </mat-form-field>
+                      <mat-form-field appearance="outline">
+                        <mat-label>{{ profile.twoFactorMethod === 'Email' ? 'Email code' : 'Authenticator code' }}</mat-label>
+                        <input matInput formControlName="code" inputmode="numeric" autocomplete="one-time-code">
+                      </mat-form-field>
+                    </div>
                     <button mat-stroked-button color="warn" type="submit"
                             [disabled]="disableForm.invalid || actionLoading === 'disable'">
                       @if (actionLoading === 'disable') {
@@ -314,45 +375,121 @@ import { TwoFactorSetupResponse } from '../../../core/models/auth.model';
       font-size: 0.84rem !important;
     }
 
-    .security-form,
-    .sensitive-form {
-      display: grid;
-      grid-template-columns: minmax(180px, 1fr) auto;
-      gap: 12px;
-      align-items: start;
-    }
-
-    .security-form + .security-form {
-      margin-top: 12px;
-    }
-
-    .security-form.compact {
-      grid-template-columns: minmax(160px, 1fr) auto;
-      margin-top: 16px;
-    }
-
-    .security-form button,
-    .sensitive-form button {
-      min-height: 56px;
-      border-radius: 8px;
-    }
-
     .is-hidden {
       display: none !important;
     }
 
-    .setup-grid {
+    .security-summary {
       display: grid;
-      grid-template-columns: 180px minmax(0, 1fr);
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      border: 1px solid #dbe4f0;
+      border-radius: 8px;
+      background: #f8fafc;
+      margin-bottom: 16px;
+    }
+
+    .security-state-icon,
+    .option-icon {
+      color: #1565c0;
+      flex: 0 0 auto;
+    }
+
+    .option-icon.success { color: #137333; }
+
+    .security-badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .security-option-grid,
+    .security-enabled-layout {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .security-option,
+    .active-method-panel,
+    .danger-zone,
+    .confirm-panel {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+      border: 1px solid #dde5ef;
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .security-option.primary-option {
+      border-color: #b8cdeb;
+      background: #f8fbff;
+    }
+
+    .danger-zone {
+      border-color: #f0c9c9;
+      background: #fffafa;
+    }
+
+    .option-icon.danger {
+      color: #b3261e;
+    }
+
+    .option-heading,
+    .danger-heading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .option-heading h2,
+    .danger-heading h2,
+    .role-section h2 {
+      margin: 0 0 3px;
+      font-size: 0.98rem;
+      font-weight: 650;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .option-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .option-controls button,
+    .active-method-panel button,
+    .danger-zone button {
+      min-height: 56px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .setup-panel {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
       gap: 18px;
       margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid #e6ebf2;
+      padding: 16px;
+      border: 1px solid #dbe4f0;
+      border-radius: 8px;
+      background: #fbfcfe;
+    }
+
+    .setup-preview {
+      display: grid;
+      gap: 12px;
     }
 
     .qr-box {
-      width: 180px;
-      height: 180px;
+      width: 100%;
+      aspect-ratio: 1;
       display: grid;
       place-items: center;
       border: 1px solid #d9e2ef;
@@ -364,33 +501,28 @@ import { TwoFactorSetupResponse } from '../../../core/models/auth.model';
       height: 160px;
     }
 
-    .security-actions {
+    .active-method-panel {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+    }
+
+    .sensitive-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
+      gap: 12px;
     }
 
-    .email-code-row {
+    .retry-banner {
       display: flex;
-      justify-content: flex-end;
-      margin-bottom: 12px;
-    }
-
-    .sensitive-form {
-      grid-template-columns: 1fr;
-      padding: 14px;
-      border: 1px solid #e2e8f0;
+      align-items: center;
+      gap: 8px;
+      min-height: 36px;
+      padding: 8px 10px;
+      border: 1px solid #f0c9c9;
       border-radius: 8px;
-    }
-    .sensitive-form h2,
-    .role-section h2 {
-      margin: 0 0 10px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      letter-spacing: 0;
-    }
-    .sensitive-form.danger {
-      border-color: #f1c7c7;
+      background: #fff4f4;
+      color: #9b1c16;
+      font-size: 0.86rem;
     }
 
     .role-section + .role-section {
@@ -429,12 +561,28 @@ import { TwoFactorSetupResponse } from '../../../core/models/auth.model';
       }
 
       .profile-grid,
-      .setup-grid,
-      .security-actions,
-      .security-form,
-      .security-form.compact,
-      .recovery-grid {
+      .security-summary,
+      .security-option-grid,
+      .security-enabled-layout,
+      .setup-panel,
+      .option-controls,
+      .active-method-panel,
+      .sensitive-grid {
         grid-template-columns: 1fr;
+      }
+
+      .security-badges {
+        justify-content: flex-start;
+      }
+
+      .qr-box {
+        max-width: 180px;
+      }
+
+      .option-controls button,
+      .active-method-panel button,
+      .danger-zone button {
+        width: 100%;
       }
     }
   `],
@@ -442,12 +590,14 @@ import { TwoFactorSetupResponse } from '../../../core/models/auth.model';
 export class ProfileComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly maxDisableFailures = 3;
 
   profile: UserProfile | null = null;
   loading = true;
   actionLoading: 'enable' | 'enableEmail' | 'confirm' | 'disable' | 'sendEmailCode' | null = null;
   setup: TwoFactorSetupResponse | null = null;
   qrCodeDataUrl: string | null = null;
+  disableFailureCount = 0;
 
   setupPasswordForm = new FormGroup({
     password: new FormControl('', [Validators.required]),
@@ -471,6 +621,20 @@ export class ProfileComponent implements OnInit {
       return '';
 
     return `${this.profile.firstName.charAt(0)}${this.profile.lastName.charAt(0)}`;
+  }
+
+  get twoFactorMethodLabel(): string {
+    if (!this.profile?.twoFactorEnabled)
+      return 'No method';
+
+    if (!this.profile.twoFactorMethod)
+      return 'Authenticator app';
+
+    return this.profile.twoFactorMethod === 'Email' ? 'Email codes' : 'Authenticator app';
+  }
+
+  get disableAttemptsRemaining(): number {
+    return Math.max(0, this.maxDisableFailures - this.disableFailureCount);
   }
 
   ngOnInit(): void {
@@ -545,10 +709,11 @@ export class ProfileComponent implements OnInit {
     }).subscribe({
       next: () => {
         this.disableForm.reset();
+        this.disableFailureCount = 0;
         this.actionLoading = null;
         this.loadProfile(false);
       },
-      error: () => this.handleActionError('Unable to disable 2FA'),
+      error: error => this.handleDisableError(error),
     });
   }
 
@@ -570,5 +735,31 @@ export class ProfileComponent implements OnInit {
   private handleActionError(message: string): void {
     this.actionLoading = null;
     this.snackBar.open(message, 'Close', { duration: 4000 });
+  }
+
+  private handleDisableError(error: unknown): void {
+    this.actionLoading = null;
+
+    if (error instanceof HttpErrorResponse && error.error?.code === 'TwoFactorVerificationFailed') {
+      this.disableFailureCount += 1;
+      const attemptsRemaining = this.maxDisableFailures - this.disableFailureCount;
+
+      if (attemptsRemaining <= 0) {
+        this.snackBar.open('Too many failed attempts. Please sign in again.', 'Close', { duration: 4000 });
+        this.auth.logout();
+        return;
+      }
+
+      this.snackBar.open(`Invalid password or code. ${attemptsRemaining} attempt${attemptsRemaining === 1 ? '' : 's'} remaining.`, 'Close', { duration: 4000 });
+      return;
+    }
+
+    if (error instanceof HttpErrorResponse && error.error?.code === 'TwoFactorLockedOut') {
+      this.snackBar.open('Too many failed attempts. Please sign in again.', 'Close', { duration: 4000 });
+      this.auth.logout();
+      return;
+    }
+
+    this.snackBar.open('Unable to disable 2FA', 'Close', { duration: 4000 });
   }
 }
