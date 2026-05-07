@@ -38,10 +38,15 @@ export class LoginComponent {
     if (this.form.invalid) return;
     this.loading = true;
     const { email, password } = this.form.value;
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/dashboard';
 
-    this.auth.login({ email: email!, password: password! }).subscribe({
-      next: () => {
-        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/dashboard';
+    this.auth.login({ email: email!, password: password! }, returnUrl).subscribe({
+      next: res => {
+        if (res.requiresTwoFactor) {
+          this.router.navigate(['/login/verify-2fa']);
+          return;
+        }
+
         this.router.navigateByUrl(returnUrl);
       },
       error: () => {

@@ -1,4 +1,3 @@
-using EasyLogin.Application.Auth.Dtos;
 using EasyLogin.Application.Common;
 using EasyLogin.Application.Interfaces;
 using EasyLogin.Domain.Entities;
@@ -6,45 +5,39 @@ using MediatR;
 
 namespace EasyLogin.Application.Auth.Commands;
 
-public record RegisterCommand(string FirstName, string LastName, string Email, string Password) : IRequest<RegisterResponse>;
+public record ResendEmailConfirmationCommand(string Email) : IRequest;
 
-public class RegisterCommandHandler(
+public class ResendEmailConfirmationCommandHandler(
     IUserRepository userRepository,
     IEmailService emailService,
     IEmailTemplateRenderer templateRenderer,
     IAppUrlProvider appUrlProvider,
     IAuditLogger auditLogger)
-    : IRequestHandler<RegisterCommand, RegisterResponse>
+    : IRequestHandler<ResendEmailConfirmationCommand>
 {
-    public async Task<RegisterResponse> Handle(RegisterCommand request, CancellationToken cancellationToken)
+    public async Task Handle(ResendEmailConfirmationCommand request, CancellationToken cancellationToken)
     {
-        if (await userRepository.EmailExistsAsync(request.Email))
-            throw new InvalidOperationException($"Email '{request.Email}' is already registered.");
-
-        ApplicationUser user = await userRepository.CreateUserAsync(
-            request.FirstName, request.LastName, request.Email, request.Password, emailConfirmed: false);
-
-        await userRepository.AssignRoleAsync(user.Id, "User");
+        ApplicationUser? user = await userRepository.GetByEmailAsync(request.Email);
+        if (user is null || user.EmailConfirmed)
+            return;
 
         string token = await userRepository.GenerateEmailConfirmationTokenAsync(request.Email);
         string confirmationUrl = BuildConfirmationUrl(request.Email, token);
-
         string body = await templateRenderer.RenderAsync("ConfirmEmail", new Dictionary<string, string>
         {
-            ["firstName"] = request.FirstName,
+            ["firstName"] = user.FirstName,
             ["confirmationUrl"] = confirmationUrl
         });
+
         await emailService.SendAsync(request.Email, "Confirm your EasyLogin email", body);
 
         await auditLogger.WriteAsync(new AuditEntry
         {
-            EventType = AuditEventType.Register,
+            EventType = AuditEventType.EmailConfirmationSent,
             Success = true,
             ActorUserId = user.Id,
             ActorEmail = user.Email
         }, cancellationToken);
-
-        return new RegisterResponse("Registration created. Confirm your email before signing in.", true);
     }
 
     private string BuildConfirmationUrl(string email, string token)

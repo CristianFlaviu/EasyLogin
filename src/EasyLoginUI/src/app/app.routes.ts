@@ -13,13 +13,29 @@ export const routes: Routes = [
     children: [{ path: '', pathMatch: 'full', loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent) }],
   },
   {
+    path: 'login/verify-2fa',
+    canActivate: [noAuthGuard],
+    loadComponent: () => import('./features/auth/auth-layout/auth-layout.component').then(m => m.AuthLayoutComponent),
+    children: [{ path: '', pathMatch: 'full', loadComponent: () => import('./features/auth/verify-two-factor/verify-two-factor.component').then(m => m.VerifyTwoFactorComponent) }],
+  },
+  {
     path: 'forgot-password',
     loadComponent: () => import('./features/auth/auth-layout/auth-layout.component').then(m => m.AuthLayoutComponent),
     children: [{ path: '', pathMatch: 'full', loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) }],
   },
   {
+    path: 'register',
+    canActivate: [noAuthGuard],
+    loadComponent: () => import('./features/auth/auth-layout/auth-layout.component').then(m => m.AuthLayoutComponent),
+    children: [{ path: '', pathMatch: 'full', loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent) }],
+  },
+  {
     path: 'reset-password',
     loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
+  },
+  {
+    path: 'confirm-email',
+    loadComponent: () => import('./features/auth/confirm-email/confirm-email.component').then(m => m.ConfirmEmailComponent),
   },
   {
     path: 'accept-invite',

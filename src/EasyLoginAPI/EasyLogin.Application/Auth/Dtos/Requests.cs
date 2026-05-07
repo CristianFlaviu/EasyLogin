@@ -12,6 +12,20 @@ public record RefreshTokenRequest(string AccessToken, string RefreshToken);
 
 public record RevokeTokenRequest(string RefreshToken);
 
+public record EnableTwoFactorRequest(string Password);
+
+public record EnableEmailTwoFactorRequest(string Password);
+
+public record ConfirmTwoFactorRequest(string Code);
+
+public record DisableTwoFactorRequest(string Password, string Code);
+
+public record VerifyTwoFactorRequest(string TwoFactorToken, string Code);
+
+public record ConfirmEmailRequest(string Email, string Token);
+
+public record ResendEmailConfirmationRequest(string Email);
+
 public record AdminCreateUserRequest(string FirstName, string LastName, string Email, string Password, List<string> SystemRoles, Guid? TenantId = null);
 
 public record InviteUserRequest(string FirstName, string LastName, string Email, List<string> SystemRoles, Guid? TenantId);

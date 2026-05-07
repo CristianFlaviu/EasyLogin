@@ -7,7 +7,7 @@ namespace EasyLogin.Application.Interfaces;
 public interface IUserRepository
 {
     Task<LoginAttemptResult> ValidateCredentialsAsync(string email, string password);
-    Task<ApplicationUser> CreateUserAsync(string firstName, string lastName, string email, string password, Guid? tenantId = null);
+    Task<ApplicationUser> CreateUserAsync(string firstName, string lastName, string email, string password, Guid? tenantId = null, bool emailConfirmed = true);
     Task<ApplicationUser?> GetByEmailAsync(string email);
     Task<ApplicationUser> CreatePendingUserAsync(string firstName, string lastName, string email, Guid? tenantId);
     Task AssignRoleAsync(string userId, string roleName);
@@ -23,6 +23,8 @@ public interface IUserRepository
     Task<(string UserId, string Email)> AcceptInviteAsync(string tokenHash, string newPassword);
     Task<string> GeneratePasswordResetTokenAsync(string email);
     Task ResetPasswordAsync(string email, string token, string newPassword);
+    Task<string> GenerateEmailConfirmationTokenAsync(string email);
+    Task ConfirmEmailAsync(string email, string token);
     Task<PaginatedList<UserListItemResponse>> GetPagedUsersAsync(int pageNumber, int pageSize, Guid? tenantId = null);
     Task UpdateUserAsync(string userId, string firstName, string lastName, string email, bool isActive, IList<string>? systemRoles, string? newPassword, Guid? requiredTenantId = null);
     Task DeleteUserAsync(string userId, Guid? requiredTenantId = null);

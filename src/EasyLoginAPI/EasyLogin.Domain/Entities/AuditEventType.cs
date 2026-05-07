@@ -4,7 +4,14 @@ public static class AuditEventType
 {
     public const string LoginSuccess = "LoginSuccess";
     public const string LoginFailed = "LoginFailed";
+    public const string TwoFactorChallengeIssued = "TwoFactorChallengeIssued";
+    public const string TwoFactorVerificationSuccess = "TwoFactorVerificationSuccess";
+    public const string TwoFactorVerificationFailed = "TwoFactorVerificationFailed";
+    public const string TwoFactorEnabled = "TwoFactorEnabled";
+    public const string TwoFactorDisabled = "TwoFactorDisabled";
     public const string Register = "Register";
+    public const string EmailConfirmed = "EmailConfirmed";
+    public const string EmailConfirmationSent = "EmailConfirmationSent";
     public const string RefreshToken = "RefreshToken";
     public const string RefreshTokenFailed = "RefreshTokenFailed";
     public const string RevokeToken = "RevokeToken";

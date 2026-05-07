@@ -1,0 +1,27 @@
+<h2 class="screen-title">Two-factor verification</h2>
+<p class="screen-subtitle">Enter your {{ codeLabel.toLowerCase() }}</p>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ codeLabel }}</mat-label>
+    <input matInput formControlName="code"
+           autocomplete="one-time-code"
+           inputmode="numeric">
+    @if (form.get('code')?.errors?.['required']) {
+      <mat-error>Code is required</mat-error>
+    }
+  </mat-form-field>
+
+  <button mat-flat-button color="primary" class="full-width submit-btn"
+          [disabled]="form.invalid || loading" type="submit">
+    @if (loading) {
+      <mat-spinner diameter="20" />
+    } @else {
+      Verify
+    }
+  </button>
+</form>
+
+<div class="screen-footer">
+  <a routerLink="/login" class="link-text">Back to sign in</a>
+</div>

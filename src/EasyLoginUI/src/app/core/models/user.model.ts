@@ -7,6 +7,9 @@ export interface UserProfile {
   tenantName: string | null;
   roles: string[];
   tenantRoles: string[];
+  twoFactorEnabled: boolean;
+  twoFactorMethod: 'Authenticator' | 'Email' | null;
+  emailConfirmed: boolean;
 }
 
 export interface OverviewResponse {

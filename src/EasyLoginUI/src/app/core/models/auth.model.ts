@@ -1,7 +1,10 @@
 export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
+  accessToken: string | null;
+  refreshToken: string | null;
   expiresIn: number;
+  requiresTwoFactor: boolean;
+  twoFactorToken: string | null;
+  twoFactorMethod: 'Authenticator' | 'Email' | null;
 }
 
 export interface LoginRequest {
@@ -15,6 +18,11 @@ export interface RegisterRequest {
   email: string;
   password: string;
   confirmPassword: string;
+}
+
+export interface RegisterResponse {
+  message: string;
+  requiresEmailConfirmation: boolean;
 }
 
 export interface ForgotPasswordRequest {
@@ -43,4 +51,36 @@ export interface InviteValidationResponse {
 export interface RefreshTokenRequest {
   accessToken: string;
   refreshToken: string;
+}
+
+export interface TwoFactorSetupResponse {
+  otpAuthUri: string;
+  sharedSecret: string;
+}
+
+export interface VerifyTwoFactorRequest {
+  twoFactorToken: string;
+  code: string;
+}
+
+export interface EnableTwoFactorRequest {
+  password: string;
+}
+
+export interface ConfirmTwoFactorRequest {
+  code: string;
+}
+
+export interface SensitiveTwoFactorRequest {
+  password: string;
+  code: string;
+}
+
+export interface ConfirmEmailRequest {
+  email: string;
+  token: string;
+}
+
+export interface ResendEmailConfirmationRequest {
+  email: string;
 }

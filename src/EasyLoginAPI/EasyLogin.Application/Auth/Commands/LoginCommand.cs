@@ -11,6 +11,9 @@ public record LoginCommand(string Email, string Password) : IRequest<AuthRespons
 public class LoginCommandHandler(
     IUserRepository userRepository,
     ITokenService tokenService,
+    ITwoFactorService twoFactorService,
+    IEmailService emailService,
+    IEmailTemplateRenderer templateRenderer,
     IAuditLogger auditLogger)
     : IRequestHandler<LoginCommand, AuthResponse>
 {
@@ -33,6 +36,41 @@ public class LoginCommandHandler(
 
         ApplicationUser user = attempt.User!;
         IList<string> roles = attempt.Roles!;
+
+        if (user.TwoFactorEnabled)
+        {
+            TwoFactorMethod method = user.TwoFactorMethod ?? TwoFactorMethod.Authenticator;
+            TwoFactorChallengeTokenResult challengeToken = tokenService.GenerateTwoFactorChallengeToken(user);
+
+            if (method == TwoFactorMethod.Email)
+            {
+                string code = await twoFactorService.GenerateEmailTwoFactorCodeAsync(user.Id);
+                string body = await templateRenderer.RenderAsync("TwoFactorCode", new Dictionary<string, string>
+                {
+                    ["firstName"] = user.FirstName,
+                    ["code"] = code,
+                    ["minutes"] = "5"
+                });
+                await emailService.SendAsync(user.Email, "Your EasyLogin verification code", body);
+            }
+
+            await auditLogger.WriteAsync(new AuditEntry
+            {
+                EventType = AuditEventType.TwoFactorChallengeIssued,
+                Success = true,
+                ActorUserId = user.Id,
+                ActorEmail = user.Email,
+                Jti = challengeToken.Jti
+            }, cancellationToken);
+
+            return new AuthResponse(
+                null,
+                null,
+                challengeToken.ExpiresIn,
+                RequiresTwoFactor: true,
+                TwoFactorToken: challengeToken.Token,
+                TwoFactorMethod: method.ToString());
+        }
 
         AccessTokenResult accessToken = tokenService.GenerateAccessToken(user, roles);
         string rawRefreshToken = tokenService.GenerateRefreshToken();

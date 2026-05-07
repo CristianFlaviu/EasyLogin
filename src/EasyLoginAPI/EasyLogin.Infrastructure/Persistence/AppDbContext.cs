@@ -13,7 +13,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<UserTenantRole> UserTenantRoles => Set<UserTenantRole>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<InviteToken> InviteTokens => Set<InviteToken>();
-
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

@@ -20,6 +20,9 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
         if (identityUser.Status != UserStatus.Active)
             return LoginAttemptResult.Failed("UserInactive");
 
+        if (!identityUser.EmailConfirmed)
+            return LoginAttemptResult.Failed("EmailNotConfirmed");
+
         if (await userManager.IsLockedOutAsync(identityUser))
             return LoginAttemptResult.Failed("LockedOut");
 
@@ -31,14 +34,15 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
                 : LoginAttemptResult.Failed("InvalidPassword");
         }
 
-        await userManager.ResetAccessFailedCountAsync(identityUser);
+        if (!identityUser.TwoFactorEnabled)
+            await userManager.ResetAccessFailedCountAsync(identityUser);
 
         var roles = await userManager.GetRolesAsync(identityUser);
         var user = await MapWithTenantAsync(identityUser);
         return LoginAttemptResult.Ok(user, roles);
     }
 
-    public async Task<ApplicationUser> CreateUserAsync(string firstName, string lastName, string email, string password, Guid? tenantId = null)
+    public async Task<ApplicationUser> CreateUserAsync(string firstName, string lastName, string email, string password, Guid? tenantId = null, bool emailConfirmed = true)
     {
         var identityUser = new AppIdentityUser
         {
@@ -46,7 +50,7 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
             Email = email,
             FirstName = firstName,
             LastName = lastName,
-            EmailConfirmed = true,
+            EmailConfirmed = emailConfirmed,
             Status = UserStatus.Active,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = null,
@@ -276,6 +280,24 @@ public class UserRepository(UserManager<AppIdentityUser> userManager, AppDbConte
             ?? throw new KeyNotFoundException("No account found with that email address.");
 
         var result = await userManager.ResetPasswordAsync(user, token, newPassword);
+        if (!result.Succeeded)
+            throw new InvalidOperationException(string.Join(", ", result.Errors.Select(e => e.Description)));
+    }
+
+    public async Task<string> GenerateEmailConfirmationTokenAsync(string email)
+    {
+        AppIdentityUser user = await userManager.FindByEmailAsync(email)
+            ?? throw new KeyNotFoundException("No account found with that email address.");
+
+        return await userManager.GenerateEmailConfirmationTokenAsync(user);
+    }
+
+    public async Task ConfirmEmailAsync(string email, string token)
+    {
+        AppIdentityUser user = await userManager.FindByEmailAsync(email)
+            ?? throw new KeyNotFoundException("No account found with that email address.");
+
+        IdentityResult result = await userManager.ConfirmEmailAsync(user, token);
         if (!result.Succeeded)
             throw new InvalidOperationException(string.Join(", ", result.Errors.Select(e => e.Description)));
     }

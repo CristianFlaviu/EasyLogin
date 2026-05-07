@@ -14,4 +14,5 @@ public class AppIdentityUser : IdentityUser
     public string? RefreshTokenHash { get; set; }
     public DateTimeOffset? RefreshTokenExpiry { get; set; }
     public Guid? TenantId { get; set; }
+    public TwoFactorMethod? TwoFactorMethod { get; set; }
 }

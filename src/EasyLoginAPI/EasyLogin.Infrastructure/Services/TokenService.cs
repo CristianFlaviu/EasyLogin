@@ -11,6 +11,8 @@ namespace EasyLogin.Infrastructure.Services;
 
 public class TokenService(IConfiguration config) : ITokenService
 {
+    private const string TwoFactorTokenType = "2fa";
+
     private readonly string _key = config["Jwt:Key"]
         ?? throw new InvalidOperationException("Jwt:Key is not configured.");
     private readonly string _issuer = config["Jwt:Issuer"] ?? "EasyLogin";
@@ -18,6 +20,9 @@ public class TokenService(IConfiguration config) : ITokenService
 
     public int AccessTokenExpiryMinutes =>
         int.TryParse(config["Jwt:AccessTokenExpiryMinutes"], out var minutes) ? minutes : 15;
+
+    private int TwoFactorChallengeExpiryMinutes =>
+        int.TryParse(config["Jwt:TwoFactorChallengeExpiryMinutes"], out var minutes) ? minutes : 5;
 
     public AccessTokenResult GenerateAccessToken(ApplicationUser user, IList<string> roles)
     {
@@ -49,6 +54,33 @@ public class TokenService(IConfiguration config) : ITokenService
         return new AccessTokenResult(new JwtSecurityTokenHandler().WriteToken(token), jti);
     }
 
+    public TwoFactorChallengeTokenResult GenerateTwoFactorChallengeToken(ApplicationUser user)
+    {
+        SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_key));
+        SigningCredentials creds = new(key, SecurityAlgorithms.HmacSha256);
+
+        string jti = Guid.NewGuid().ToString();
+        List<Claim> claims =
+        [
+            new(JwtRegisteredClaimNames.Sub, user.Id),
+            new(JwtRegisteredClaimNames.Email, user.Email),
+            new(JwtRegisteredClaimNames.Jti, jti),
+            new("token_type", TwoFactorTokenType)
+        ];
+
+        JwtSecurityToken token = new(
+            issuer: _issuer,
+            audience: _audience,
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(TwoFactorChallengeExpiryMinutes),
+            signingCredentials: creds);
+
+        return new TwoFactorChallengeTokenResult(
+            new JwtSecurityTokenHandler().WriteToken(token),
+            jti,
+            TwoFactorChallengeExpiryMinutes * 60);
+    }
+
     public string GenerateRefreshToken()
         => Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
 
@@ -77,5 +109,49 @@ public class TokenService(IConfiguration config) : ITokenService
         }
 
         return principal;
+    }
+
+    public TwoFactorChallengePrincipal ValidateTwoFactorChallengeToken(string token)
+    {
+        SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_key));
+
+        TokenValidationParameters validationParams = new()
+        {
+            ValidateIssuer = true,
+            ValidIssuer = _issuer,
+            ValidateAudience = true,
+            ValidAudience = _audience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = key,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+
+        JwtSecurityTokenHandler handler = new();
+        ClaimsPrincipal principal = handler.ValidateToken(token, validationParams, out SecurityToken securityToken);
+
+        if (securityToken is not JwtSecurityToken jwtToken ||
+            !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new SecurityTokenException("Invalid token algorithm.");
+        }
+
+        string? tokenType = principal.FindFirst("token_type")?.Value;
+        if (tokenType != TwoFactorTokenType)
+            throw new SecurityTokenException("Invalid token type.");
+
+        string? userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+            ?? principal.FindFirst("sub")?.Value;
+        string? email = principal.FindFirst(JwtRegisteredClaimNames.Email)?.Value
+            ?? principal.FindFirst(ClaimTypes.Email)?.Value
+            ?? principal.FindFirst("email")?.Value;
+        string? jti = principal.FindFirst(JwtRegisteredClaimNames.Jti)?.Value
+            ?? principal.FindFirst("jti")?.Value;
+
+        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(jti))
+            throw new SecurityTokenException("Missing required 2FA challenge claims.");
+
+        return new TwoFactorChallengePrincipal(userId, email, jti);
     }
 }

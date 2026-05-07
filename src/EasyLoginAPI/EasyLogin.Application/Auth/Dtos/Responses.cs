@@ -1,6 +1,16 @@
 namespace EasyLogin.Application.Auth.Dtos;
 
-public record AuthResponse(string AccessToken, string RefreshToken, int ExpiresIn);
+public record AuthResponse(
+    string? AccessToken,
+    string? RefreshToken,
+    int ExpiresIn,
+    bool RequiresTwoFactor = false,
+    string? TwoFactorToken = null,
+    string? TwoFactorMethod = null);
+
+public record TwoFactorSetupResponse(string OtpAuthUri, string SharedSecret);
+
+public record RegisterResponse(string Message, bool RequiresEmailConfirmation);
 
 public record OverviewResponse(int TotalUsers, int LoginsLast24Hours, int ActiveSessions);
 
@@ -26,7 +36,10 @@ public record OverviewActiveSessionResponse(
 public record UserProfileResponse(
     string Id, string FirstName, string LastName, string Email,
     Guid? TenantId, string? TenantName,
-    IList<string> Roles, IList<string> TenantRoles);
+    IList<string> Roles, IList<string> TenantRoles,
+    bool TwoFactorEnabled,
+    string? TwoFactorMethod,
+    bool EmailConfirmed);
 
 public record UserListItemResponse(
     string Id, string FirstName, string LastName, string Email,

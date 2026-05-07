@@ -19,6 +19,9 @@ public class GetCurrentUserQueryHandler(IUserRepository userRepository, ICurrent
         return new UserProfileResponse(
             user.Id, user.FirstName, user.LastName, user.Email,
             user.TenantId, user.TenantName,
-            systemRoles, tenantRoles);
+            systemRoles, tenantRoles,
+            user.TwoFactorEnabled,
+            user.TwoFactorMethod?.ToString(),
+            user.EmailConfirmed);
     }
 }

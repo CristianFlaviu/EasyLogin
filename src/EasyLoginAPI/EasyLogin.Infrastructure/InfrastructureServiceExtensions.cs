@@ -82,6 +82,7 @@ public static class InfrastructureServiceExtensions
         services.AddSingleton<IEmailTemplateRenderer, EmbeddedEmailTemplateRenderer>();
         services.AddSingleton<IAppUrlProvider, AppUrlProvider>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<ITwoFactorService, TwoFactorService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();

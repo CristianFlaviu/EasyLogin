@@ -17,6 +17,10 @@ public class AppIdentityUserConfiguration : IEntityTypeConfiguration<AppIdentity
             .HasDefaultValue(UserStatus.Active)
             .IsRequired();
         builder.Property(u => u.RefreshTokenHash).HasMaxLength(256);
+        builder.Property(u => u.TwoFactorMethod)
+            .HasConversion<string>()
+            .HasMaxLength(32)
+            .IsRequired(false);
 
         builder.HasIndex(u => u.RefreshTokenHash)
             .HasFilter("[RefreshTokenHash] IS NOT NULL");
