@@ -29,7 +29,7 @@ if "%ACTION%"=="clean" (
     goto end
 )
 
-echo Usage: run-db.bat [up^|down^|logs^|clean]
+echo Usage: run-db-docker.bat [up^|down^|logs^|clean]
 echo   up      - Create/start only SQL Server container (default)
 echo   down    - Stop only SQL Server container
 echo   logs    - Tail SQL Server container logs

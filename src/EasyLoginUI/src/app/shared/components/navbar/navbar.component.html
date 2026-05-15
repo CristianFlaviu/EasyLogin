@@ -31,6 +31,37 @@
 
   <span class="spacer"></span>
 
+  <button
+    mat-icon-button
+    [matMenuTriggerFor]="notifMenu"
+    (menuOpened)="notifications.loadInitial()"
+    matTooltip="Notifications"
+    aria-label="Open notifications">
+    <mat-icon
+      [matBadge]="(notifications.unreadCount$ | async) || null"
+      matBadgeColor="warn"
+      matBadgeSize="small">notifications</mat-icon>
+  </button>
+
+  <mat-menu #notifMenu="matMenu" class="notif-menu" xPosition="before">
+    <div class="notif-header" (click)="$event.stopPropagation()">
+      <span>Notifications</span>
+      <button mat-button (click)="notifications.markAllRead()">Mark all read</button>
+    </div>
+    <mat-divider></mat-divider>
+    @for (notification of (notifications.list$ | async); track notification.id) {
+      <button mat-menu-item (click)="onNotifClick(notification)" [class.unread]="!notification.isRead">
+        <div class="notif-row">
+          <strong>{{ notification.title }}</strong>
+          <small>{{ notification.message }}</small>
+          <small class="ts">{{ notification.createdAt | date:'short' }}</small>
+        </div>
+      </button>
+    } @empty {
+      <div class="notif-empty">No notifications</div>
+    }
+  </mat-menu>
+
   @if (auth.currentUser$ | async; as user) {
     <button mat-icon-button class="user-menu-trigger" [matMenuTriggerFor]="userMenu" matTooltip="Account" aria-label="Open user menu">
       <span class="user-avatar">{{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}</span>

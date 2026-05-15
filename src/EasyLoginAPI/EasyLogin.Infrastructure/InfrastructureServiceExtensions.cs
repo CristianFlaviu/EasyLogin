@@ -2,11 +2,14 @@ using EasyLogin.Application.Interfaces;
 using EasyLogin.Infrastructure.Identity;
 using EasyLogin.Infrastructure.Identity.MappingProfiles;
 using EasyLogin.Infrastructure.Persistence;
+using EasyLogin.Infrastructure.Realtime;
 using EasyLogin.Infrastructure.Services;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,6 +64,23 @@ public static class InfrastructureServiceExtensions
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        string? accessToken = context.Request.Query["access_token"];
+                        PathString path = context.HttpContext.Request.Path;
+
+                        if (!string.IsNullOrEmpty(accessToken)
+                            && path.StartsWithSegments("/hubs/notifications"))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
         var emailProvider = config["Email:Provider"]
@@ -91,6 +111,10 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<IOverviewRepository, OverviewRepository>();
         services.AddScoped<IAuditLogger, AuditLogger>();
         services.AddScoped<IAuditLogQueryRepository, AuditLogQueryRepository>();
+        services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<INotificationPusher, SignalRNotificationPusher>();
+        services.AddSignalR();
+        services.AddSingleton<IUserIdProvider, JwtUserIdProvider>();
         services.AddHttpContextAccessor();
 
         var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;

@@ -112,3 +112,85 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+:host ::ng-deep .notif-menu {
+  width: 340px;
+  max-width: calc(100vw - 24px);
+
+  .mat-mdc-menu-content {
+    max-height: 480px;
+    overflow-y: auto;
+    padding: 0;
+  }
+}
+
+.notif-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  font-weight: 600;
+
+  button {
+    flex-shrink: 0;
+  }
+}
+
+.notif-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 292px;
+  max-width: calc(100vw - 72px);
+  padding: 6px 0;
+  line-height: 1.25;
+
+  strong,
+  small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  strong {
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+
+  small {
+    color: rgba(0, 0, 0, 0.66);
+  }
+
+  .ts {
+    color: rgba(0, 0, 0, 0.48);
+    font-size: 0.76rem;
+  }
+}
+
+.unread {
+  border-left: 3px solid #42a5f5;
+
+  .notif-row strong {
+    font-weight: 800;
+  }
+}
+
+.notif-empty {
+  padding: 18px 16px;
+  color: rgba(0, 0, 0, 0.58);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+:host-context(body.dark-mode) {
+  .menu-email,
+  .notif-row small {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .notif-row .ts,
+  .notif-empty {
+    color: rgba(255, 255, 255, 0.54);
+  }
+}

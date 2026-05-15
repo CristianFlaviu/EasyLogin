@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using EasyLogin.Application;
 using EasyLogin.Infrastructure;
 using EasyLogin.Infrastructure.Persistence;
+using EasyLogin.Infrastructure.Realtime;
 using EasyLoginAPI.Exceptions;
 using Scalar.AspNetCore;
 using Serilog;
@@ -29,9 +30,9 @@ builder.Services.AddCors(options =>
             ?? ["http://localhost:4200"];
 
         if (builder.Environment.IsDevelopment())
-            policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod();
+            policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
         else
-            policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod();
+            policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 
@@ -64,6 +65,7 @@ app.UseHttpsRedirection();
 app.UseCors(corsPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapHub<NotificationHub>("/hubs/notifications");
 app.MapControllers();
 
 app.Run();
