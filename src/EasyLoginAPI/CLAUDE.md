@@ -35,7 +35,7 @@ EasyLoginAPI              → Controllers, GlobalExceptionHandler, Program.cs, S
 - **Refresh tokens in JSON body** — SHA-256 hash stored in DB (`RefreshTokenHash`), raw token sent to client. Not HttpOnly cookie.
 - **Password policy**: min 8 chars, ≥1 uppercase, ≥1 digit (no non-alphanumeric required).
 - **Lockout**: Identity built-in; 5 failed attempts → 15 min lock. Checked + bumped in `UserRepository.ValidateCredentialsAsync` via `AccessFailedAsync` / `IsLockedOutAsync` / `ResetAccessFailedCountAsync`.
-- **Admin seed**: `ADMIN_EMAIL` / `ADMIN_PASSWORD` env vars via `DataSeeder.SeedAsync()` (also runs `Database.MigrateAsync()` on startup).
+- **Seed data**: `DataSeeder.SeedAsync()` runs migrations, creates system roles, and seeds hardcoded demo users/tenant data.
 - **Pagination**: max page size 100, enforced in handlers.
 - **CORS**: dev allows `http://localhost:4200`; prod reads `AllowedOrigins` config (comma-separated).
 - **Serilog**: daily rolling log to `logs/easylogin-.log`.

@@ -84,7 +84,6 @@ Nested objects also valid:
 | `Email:SmtpPassword` | Gmail App Password (16 chars, no spaces) |
 | `ConnectionStrings:DefaultConnection` | SQL Server password (if not in appsettings) |
 | `Jwt:Key` | Override dev JWT signing key |
-| `ADMIN_PASSWORD` | Seed admin password |
 
 ## Production
 
